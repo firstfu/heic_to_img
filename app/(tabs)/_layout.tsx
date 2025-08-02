@@ -34,6 +34,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="photo.on.rectangle" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="about"
+        options={{
+          title: "關於",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="info.circle.fill" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

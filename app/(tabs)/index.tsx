@@ -146,67 +146,13 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero Section */}
-        <View style={styles.heroSection}>
-          <LinearGradient
-            colors={[
-              colors.primary + '20',
-              colors.secondary + '10',
-              'transparent'
-            ]}
-            style={styles.heroGradient}
-          />
-          <View style={styles.heroContent}>
-            <View style={styles.heroIcon}>
-              <ThemedText style={styles.heroIconText}>🔄</ThemedText>
-            </View>
-            <ThemedText style={[styles.heroTitle, { color: colors.textPrimary }]}>
-              HEIC 轉換工具
-            </ThemedText>
-            <ThemedText style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-              快速、安全、高品質的圖片格式轉換
-            </ThemedText>
-          </View>
-        </View>
-
-        {/* Features Grid */}
-        <View style={styles.featuresSection}>
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <ThemedText style={styles.featureIcon}>🔒</ThemedText>
-            </View>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              隱私優先
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
-              完全離線處理，保護您的隱私
-            </ThemedText>
-          </Card>
-          
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <ThemedText style={styles.featureIcon}>⚡</ThemedText>
-            </View>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              批量轉換
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
-              支援多檔案同時轉換
-            </ThemedText>
-          </Card>
-          
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <ThemedText style={styles.featureIcon}>🎯</ThemedText>
-            </View>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              品質保證
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
-              保留原始品質與 EXIF 資料
-            </ThemedText>
-          </Card>
-        </View>
+        {/* File Selection - Main Function */}
+        <FileSelector
+          selectedFiles={selectedFiles}
+          onFilesSelected={handleFilesSelected}
+          onClearFiles={handleClearAll}
+          disabled={isConverting}
+        />
 
         {/* Settings Section */}
         <Card style={styles.settingsCard}>
@@ -258,13 +204,27 @@ export default function HomeScreen() {
           </View>
         </Card>
 
-        {/* File Selection */}
-        <FileSelector
-          selectedFiles={selectedFiles}
-          onFilesSelected={handleFilesSelected}
-          onClearFiles={handleClearAll}
-          disabled={isConverting}
-        />
+        {/* Quick Features */}
+        <View style={styles.quickFeatures}>
+          <View style={styles.quickFeatureItem}>
+            <ThemedText style={styles.quickFeatureIcon}>🔒</ThemedText>
+            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
+              離線處理
+            </ThemedText>
+          </View>
+          <View style={styles.quickFeatureItem}>
+            <ThemedText style={styles.quickFeatureIcon}>⚡</ThemedText>
+            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
+              批量轉換
+            </ThemedText>
+          </View>
+          <View style={styles.quickFeatureItem}>
+            <ThemedText style={styles.quickFeatureIcon}>🎯</ThemedText>
+            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
+              保留 EXIF
+            </ThemedText>
+          </View>
+        </View>
 
         {/* Convert Button */}
         {selectedFiles.length > 0 && (
@@ -338,31 +298,6 @@ export default function HomeScreen() {
           </Card>
         )}
 
-        {/* Instructions */}
-        <Card style={styles.instructionsCard}>
-          <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>
-            使用說明
-          </ThemedText>
-          <View style={styles.instructionsList}>
-            {[
-              { step: '1', text: '拖拽或點擊選擇 HEIC 檔案' },
-              { step: '2', text: '調整轉換品質和格式設定' },
-              { step: '3', text: '點擊開始轉換執行處理' },
-              { step: '4', text: '下載轉換完成的檔案' },
-            ].map((instruction, index) => (
-              <View key={index} style={styles.instructionItem}>
-                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-                  <ThemedText style={[styles.stepNumberText, { color: colors.textInverse }]}>
-                    {instruction.step}
-                  </ThemedText>
-                </View>
-                <ThemedText style={[styles.instructionText, { color: colors.textSecondary }]}>
-                  {instruction.text}
-                </ThemedText>
-              </View>
-            ))}
-          </View>
-        </Card>
 
       </ScrollView>
       
@@ -383,6 +318,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
     paddingBottom: Spacing.xxxl,
   },
   
@@ -469,7 +405,8 @@ const styles = StyleSheet.create({
   
   // Settings Section
   settingsCard: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
+    marginTop: Spacing.sm,
   },
   settingsTitle: {
     ...Typography.h4,
@@ -577,5 +514,25 @@ const styles = StyleSheet.create({
     ...Typography.body,
     flex: 1,
     lineHeight: 24,
+  },
+  
+  // Quick Features
+  quickFeatures: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  quickFeatureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  quickFeatureIcon: {
+    fontSize: 20,
+  },
+  quickFeatureText: {
+    ...Typography.caption,
   },
 });
