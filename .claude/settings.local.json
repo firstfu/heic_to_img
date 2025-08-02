@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo install expo-document-picker expo-file-system)",
+      "Bash(npm install:*)",
+      "Bash(npx expo start:*)",
+      "Bash(npm run lint)",
+      "Bash(pkill:*)",
+      "Bash(mkdir:*)"
+    ],
+    "deny": []
+  }
+}
