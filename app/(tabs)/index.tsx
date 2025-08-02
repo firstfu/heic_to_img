@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
   ScrollView,
   Alert,
   Platform,
+  Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import * as DocumentPicker from 'expo-document-picker';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
+import { FileSelector } from '@/components/FileSelector';
+import { NewColors, Typography, BorderRadius, Spacing, Shadows } from '@/constants/NewColors';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
@@ -20,7 +28,9 @@ export default function HomeScreen() {
   const [quality, setQuality] = useState<number>(0.9);
   const [outputFormat, setOutputFormat] = useState<'jpeg' | 'png'>('jpeg');
 
-  const primaryColor = useThemeColor({}, 'tint');
+  const isDark = useThemeColor({}, 'background') === '#151718';
+  const colors = isDark ? NewColors.dark : NewColors.light;
+  const [progressValue, setProgressValue] = useState(0);
 
   const convertHeicToJpg = async (fileUri: string): Promise<string | null> => {
     try {
@@ -52,40 +62,15 @@ export default function HomeScreen() {
     }
   };
 
-  const handleSelectFiles = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ['image/heic', 'image/heif', 'image/*'],
-        multiple: true,
-        copyToCacheDirectory: true,
-      });
-
-      if (!result.canceled && result.assets) {
-        const heicFiles = result.assets.filter(file => 
-          file.name.toLowerCase().endsWith('.heic') || 
-          file.name.toLowerCase().endsWith('.heif') ||
-          file.mimeType?.includes('heic') ||
-          file.mimeType?.includes('heif')
-        );
-
-        if (heicFiles.length === 0) {
-          Alert.alert('錯誤', '請選擇 HEIC/HEIF 格式的圖片檔案');
-          return;
-        }
-
-        setSelectedFiles(heicFiles);
-        Alert.alert('成功', `已選擇 ${heicFiles.length} 個 HEIC 檔案`);
-      }
-    } catch (error) {
-      console.error('選擇檔案時發生錯誤:', error);
-      Alert.alert('錯誤', '選擇檔案時發生錯誤，請重試');
-    }
+  const handleFilesSelected = (files: any[]) => {
+    setSelectedFiles(files);
   };
 
   const handleClearAll = () => {
     setSelectedFiles([]);
     setConvertedFiles([]);
     setConversionProgress('');
+    setProgressValue(0);
   };
 
   const handleConvert = async () => {
@@ -101,6 +86,8 @@ export default function HomeScreen() {
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
+        const progress = (i + 1) / selectedFiles.length;
+        setProgressValue(progress);
         setConversionProgress(`轉換中... ${i + 1}/${selectedFiles.length}`);
 
         const convertedUri = await convertHeicToJpg(file.uri);
@@ -149,194 +136,243 @@ export default function HomeScreen() {
     } finally {
       setIsConverting(false);
       setConversionProgress('');
+      setProgressValue(0);
     }
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
-        {/* 標題區域 */}
-        <View style={styles.headerSection}>
-          <ThemedText style={styles.title}>HEIC 轉換工具</ThemedText>
-          <ThemedText style={styles.subtitle}>
-            快速、安全、高品質的 HEIC 圖片轉換
-          </ThemedText>
+    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <LinearGradient
+            colors={[
+              colors.primary + '20',
+              colors.secondary + '10',
+              'transparent'
+            ]}
+            style={styles.heroGradient}
+          />
+          <View style={styles.heroContent}>
+            <View style={styles.heroIcon}>
+              <ThemedText style={styles.heroIconText}>🔄</ThemedText>
+            </View>
+            <ThemedText style={[styles.heroTitle, { color: colors.textPrimary }]}>
+              HEIC 轉換工具
+            </ThemedText>
+            <ThemedText style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
+              快速、安全、高品質的圖片格式轉換
+            </ThemedText>
+          </View>
         </View>
 
-        {/* 功能特色卡片 */}
+        {/* Features Grid */}
         <View style={styles.featuresSection}>
-          <View style={styles.featureCard}>
-            <ThemedText style={styles.featureTitle}>🔒 隱私優先</ThemedText>
-            <ThemedText style={styles.featureText}>
+          <Card style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <ThemedText style={styles.featureIcon}>🔒</ThemedText>
+            </View>
+            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
+              隱私優先
+            </ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
               完全離線處理，保護您的隱私
             </ThemedText>
-          </View>
+          </Card>
           
-          <View style={styles.featureCard}>
-            <ThemedText style={styles.featureTitle}>⚡ 批量轉換</ThemedText>
-            <ThemedText style={styles.featureText}>
+          <Card style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <ThemedText style={styles.featureIcon}>⚡</ThemedText>
+            </View>
+            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
+              批量轉換
+            </ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
               支援多檔案同時轉換
             </ThemedText>
-          </View>
+          </Card>
           
-          <View style={styles.featureCard}>
-            <ThemedText style={styles.featureTitle}>🎯 品質保證</ThemedText>
-            <ThemedText style={styles.featureText}>
+          <Card style={styles.featureCard}>
+            <View style={styles.featureIconContainer}>
+              <ThemedText style={styles.featureIcon}>🎯</ThemedText>
+            </View>
+            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
+              品質保證
+            </ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
               保留原始品質與 EXIF 資料
             </ThemedText>
-          </View>
+          </Card>
         </View>
 
-        {/* 設定區域 */}
-        <View style={styles.settingsSection}>
-          <ThemedText style={styles.settingsSectionTitle}>轉換設定</ThemedText>
+        {/* Settings Section */}
+        <Card style={styles.settingsCard}>
+          <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
+            轉換設定
+          </ThemedText>
           
           <View style={styles.settingRow}>
-            <ThemedText style={styles.settingLabel}>輸出格式:</ThemedText>
+            <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
+              輸出格式
+            </ThemedText>
             <View style={styles.formatButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.formatButton,
-                  outputFormat === 'jpeg' && { backgroundColor: primaryColor }
-                ]}
+              <Button
+                title="JPEG"
+                variant={outputFormat === 'jpeg' ? 'primary' : 'outline'}
+                size="small"
                 onPress={() => setOutputFormat('jpeg')}
                 disabled={isConverting}
-              >
-                <ThemedText style={styles.formatButtonText}>JPEG</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.formatButton,
-                  outputFormat === 'png' && { backgroundColor: primaryColor }
-                ]}
+                style={styles.formatButton}
+              />
+              <Button
+                title="PNG"
+                variant={outputFormat === 'png' ? 'primary' : 'outline'}
+                size="small"
                 onPress={() => setOutputFormat('png')}
                 disabled={isConverting}
-              >
-                <ThemedText style={styles.formatButtonText}>PNG</ThemedText>
-              </TouchableOpacity>
+                style={styles.formatButton}
+              />
             </View>
           </View>
 
           <View style={styles.settingRow}>
-            <ThemedText style={styles.settingLabel}>
+            <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
               品質: {Math.round(quality * 100)}%
             </ThemedText>
             <View style={styles.qualityButtons}>
               {[0.6, 0.8, 0.9, 1.0].map((q) => (
-                <TouchableOpacity
+                <Button
                   key={q}
-                  style={[
-                    styles.qualityButton,
-                    quality === q && { backgroundColor: primaryColor }
-                  ]}
+                  title={`${Math.round(q * 100)}%`}
+                  variant={quality === q ? 'primary' : 'outline'}
+                  size="small"
                   onPress={() => setQuality(q)}
                   disabled={isConverting}
-                >
-                  <ThemedText style={styles.qualityButtonText}>
-                    {Math.round(q * 100)}%
-                  </ThemedText>
-                </TouchableOpacity>
+                  style={styles.qualityButton}
+                />
               ))}
             </View>
           </View>
-        </View>
+        </Card>
 
-        {/* 主要操作區域 */}
-        <View style={styles.actionSection}>
-          <TouchableOpacity
-            style={[styles.primaryButton, { backgroundColor: primaryColor }]}
-            onPress={handleSelectFiles}
-            disabled={isConverting}
-          >
-            <ThemedText style={styles.buttonText}>
-              📁 選擇 HEIC 檔案
-            </ThemedText>
-          </TouchableOpacity>
+        {/* File Selection */}
+        <FileSelector
+          selectedFiles={selectedFiles}
+          onFilesSelected={handleFilesSelected}
+          onClearFiles={handleClearAll}
+          disabled={isConverting}
+        />
 
-          {selectedFiles.length > 0 && (
-            <View style={styles.selectedFilesSection}>
-              <View style={styles.selectedFilesHeader}>
-                <ThemedText style={styles.selectedFilesText}>
-                  已選擇 {selectedFiles.length} 個檔案
-                </ThemedText>
-                <TouchableOpacity
-                  style={styles.clearButton}
-                  onPress={handleClearAll}
-                  disabled={isConverting}
-                >
-                  <ThemedText style={styles.clearButtonText}>清除</ThemedText>
-                </TouchableOpacity>
-              </View>
-              
-              <TouchableOpacity
-                style={[styles.convertButton, { backgroundColor: primaryColor }]}
-                onPress={handleConvert}
-                disabled={isConverting}
-              >
-                <ThemedText style={styles.buttonText}>
-                  {isConverting ? (conversionProgress || '🔄 轉換中...') : '🚀 開始轉換'}
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* 轉換結果區域 */}
-        {convertedFiles.length > 0 && (
-          <View style={styles.resultsSection}>
-            <ThemedText style={styles.resultsTitle}>轉換完成</ThemedText>
-            <View style={styles.resultsList}>
-              {convertedFiles.map((file, index) => (
-                <View key={index} style={styles.resultItem}>
-                  <ThemedText style={styles.resultText}>
-                    ✅ {file.originalName} → {file.name}
-                  </ThemedText>
-                  <ThemedText style={styles.resultSubText}>
-                    轉換時間: {new Date(file.convertedAt).toLocaleTimeString()}
-                  </ThemedText>
-                  <ThemedText style={styles.resultSubText}>
-                    格式: {file.format?.toUpperCase()} | 品質: {Math.round((file.quality || 0.9) * 100)}%
-                  </ThemedText>
-                  {Platform.OS === 'web' && (
-                    <TouchableOpacity
-                      style={styles.downloadButton}
-                      onPress={() => {
-                        const link = document.createElement('a');
-                        link.href = file.uri;
-                        link.download = file.name;
-                        link.click();
-                      }}
-                    >
-                      <ThemedText style={styles.downloadButtonText}>
-                        📥 下載
-                      </ThemedText>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-            </View>
+        {/* Convert Button */}
+        {selectedFiles.length > 0 && (
+          <View style={styles.convertSection}>
+            <Button
+              title={isConverting ? '轉換中...' : '開始轉換'}
+              icon={isConverting ? undefined : '🚀'}
+              onPress={handleConvert}
+              disabled={isConverting}
+              loading={isConverting}
+              fullWidth
+              size="large"
+            />
           </View>
         )}
 
-        {/* 使用說明 */}
-        <View style={styles.instructionsSection}>
-          <ThemedText style={styles.instructionsTitle}>使用說明</ThemedText>
-          <ThemedText style={styles.instructionText}>
-            1. 點擊「選擇 HEIC 檔案」選擇要轉換的檔案
+        {/* Results Section */}
+        {convertedFiles.length > 0 && (
+          <Card style={styles.resultsCard} variant="elevated">
+            <View style={styles.resultHeaderSection}>
+              <ThemedText style={[styles.resultsTitle, { color: colors.textPrimary }]}>
+                轉換完成
+              </ThemedText>
+              <StatusBadge
+                status="success"
+                text={`${convertedFiles.length} 個檔案`}
+                icon="✅"
+              />
+            </View>
+            
+            {convertedFiles.map((file, index) => (
+              <Card key={index} style={styles.resultItem} variant="outlined">
+                <View style={styles.resultHeader}>
+                  <ThemedText style={[styles.resultFileName, { color: colors.textPrimary }]}>
+                    {file.name}
+                  </ThemedText>
+                  <StatusBadge
+                    status="success"
+                    text={file.format?.toUpperCase() || 'JPEG'}
+                    size="small"
+                  />
+                </View>
+                <ThemedText style={[styles.resultOriginalName, { color: colors.textTertiary }]}>
+                  來源: {file.originalName}
+                </ThemedText>
+                <View style={styles.resultMeta}>
+                  <ThemedText style={[styles.resultMetaText, { color: colors.textSecondary }]}>
+                    品質: {Math.round((file.quality || 0.9) * 100)}%
+                  </ThemedText>
+                  <ThemedText style={[styles.resultMetaText, { color: colors.textSecondary }]}>
+                    轉換時間: {new Date(file.convertedAt).toLocaleTimeString()}
+                  </ThemedText>
+                </View>
+                {Platform.OS === 'web' && (
+                  <Button
+                    title="下載"
+                    variant="outline"
+                    size="small"
+                    icon="📥"
+                    onPress={() => {
+                      const link = document.createElement('a');
+                      link.href = file.uri;
+                      link.download = file.name;
+                      link.click();
+                    }}
+                    style={styles.downloadButton}
+                  />
+                )}
+              </Card>
+            ))}
+          </Card>
+        )}
+
+        {/* Instructions */}
+        <Card style={styles.instructionsCard}>
+          <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>
+            使用說明
           </ThemedText>
-          <ThemedText style={styles.instructionText}>
-            2. 選擇轉換品質和格式設定（可選）
-          </ThemedText>
-          <ThemedText style={styles.instructionText}>
-            3. 點擊「開始轉換」執行轉換
-          </ThemedText>
-          <ThemedText style={styles.instructionText}>
-            4. 轉換完成後可下載或分享檔案
-          </ThemedText>
-        </View>
+          <View style={styles.instructionsList}>
+            {[
+              { step: '1', text: '拖拽或點擊選擇 HEIC 檔案' },
+              { step: '2', text: '調整轉換品質和格式設定' },
+              { step: '3', text: '點擊開始轉換執行處理' },
+              { step: '4', text: '下載轉換完成的檔案' },
+            ].map((instruction, index) => (
+              <View key={index} style={styles.instructionItem}>
+                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
+                  <ThemedText style={[styles.stepNumberText, { color: colors.textInverse }]}>
+                    {instruction.step}
+                  </ThemedText>
+                </View>
+                <ThemedText style={[styles.instructionText, { color: colors.textSecondary }]}>
+                  {instruction.text}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+        </Card>
 
       </ScrollView>
+      
+      {/* Loading Overlay */}
+      <LoadingOverlay
+        visible={isConverting}
+        progress={progressValue}
+        title="正在轉換 HEIC 檔案"
+        subtitle={conversionProgress}
+      />
     </ThemedView>
   );
 }
@@ -346,211 +382,200 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
   },
-  headerSection: {
+  
+  // Hero Section
+  heroSection: {
+    position: 'relative',
     alignItems: 'center',
-    marginBottom: 30,
-    paddingTop: 20,
+    paddingVertical: Spacing.xxxl,
+    marginBottom: Spacing.xl,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  heroGradient: {
+    position: 'absolute',
+    top: 0,
+    left: -100,
+    right: -100,
+    height: 300,
+    borderRadius: BorderRadius.xl,
+  },
+  heroContent: {
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  heroIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.lg,
+    ...Shadows.md,
+  },
+  heroIconText: {
+    fontSize: 36,
+  },
+  heroTitle: {
+    ...Typography.h1,
     textAlign: 'center',
+    marginBottom: Spacing.md,
   },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
+  heroSubtitle: {
+    ...Typography.bodyLarge,
     textAlign: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.xl,
+    lineHeight: 28,
   },
+  
+  // Features Section
   featuresSection: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 30,
+    marginBottom: Spacing.xl,
+    gap: Spacing.md,
   },
   featureCard: {
-    width: Platform.OS === 'web' ? '30%' : '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    width: Platform.OS === 'web' && screenWidth > 768 ? '30%' : '100%',
+    minHeight: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  featureIcon: {
+    fontSize: 24,
   },
   featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+    ...Typography.h5,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
   featureText: {
-    fontSize: 14,
-    opacity: 0.8,
+    ...Typography.bodySmall,
+    textAlign: 'center',
     lineHeight: 20,
   },
-  settingsSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+  
+  // Settings Section
+  settingsCard: {
+    marginBottom: Spacing.xl,
   },
-  settingsSectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+  settingsTitle: {
+    ...Typography.h4,
+    marginBottom: Spacing.lg,
   },
   settingRow: {
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
   settingLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
+    ...Typography.labelLarge,
+    marginBottom: Spacing.sm,
   },
   formatButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: Spacing.sm,
   },
   formatButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 12,
     flex: 1,
-    alignItems: 'center',
-  },
-  formatButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
   },
   qualityButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: Spacing.sm,
   },
   qualityButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 10,
     flex: 1,
-    alignItems: 'center',
   },
-  qualityButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
+  
+  // Convert Section
+  convertSection: {
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
-  actionSection: {
-    marginBottom: 30,
+  
+  // Results Section
+  resultsCard: {
+    marginBottom: Spacing.xl,
   },
-  primaryButton: {
-    borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  convertButton: {
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 12,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  selectedFilesSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  selectedFilesHeader: {
+  resultHeaderSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  selectedFilesText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  clearButton: {
-    backgroundColor: 'rgba(255, 100, 100, 0.2)',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  clearButtonText: {
-    fontSize: 12,
-    color: '#ff6b6b',
-    fontWeight: '500',
-  },
-  resultsSection: {
-    marginBottom: 30,
+    marginBottom: Spacing.lg,
   },
   resultsTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  resultsList: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
+    ...Typography.h4,
   },
   resultItem: {
-    paddingVertical: 8,
+    marginBottom: Spacing.md,
   },
-  resultText: {
-    fontSize: 14,
+  resultHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
-  resultSubText: {
-    fontSize: 12,
-    opacity: 0.6,
-    marginTop: 4,
+  resultFileName: {
+    ...Typography.labelLarge,
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  resultOriginalName: {
+    ...Typography.caption,
+    marginBottom: Spacing.sm,
+  },
+  resultMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  resultMetaText: {
+    ...Typography.caption,
   },
   downloadButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 8,
-    marginTop: 8,
-    alignItems: 'center',
+    alignSelf: 'flex-start',
   },
-  downloadButtonText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  instructionsSection: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+  
+  // Instructions Section
+  instructionsCard: {
+    marginBottom: Spacing.xl,
   },
   instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    ...Typography.h4,
+    marginBottom: Spacing.lg,
+  },
+  instructionsList: {
+    gap: Spacing.md,
+  },
+  instructionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stepNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.md,
+  },
+  stepNumberText: {
+    ...Typography.labelSmall,
+    fontWeight: '700',
   },
   instructionText: {
-    fontSize: 14,
-    lineHeight: 22,
-    marginBottom: 8,
-    opacity: 0.8,
+    ...Typography.body,
+    flex: 1,
+    lineHeight: 24,
   },
 });
