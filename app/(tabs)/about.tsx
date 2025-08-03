@@ -31,14 +31,14 @@ export default function AboutScreen() {
         {/* Hero Section */}
         <View style={styles.heroContainer}>
           <LinearGradient
-            colors={colors.primaryGradient}
+            colors={colors.primaryGradient as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.heroGradient}
           >
             <View style={styles.heroContent}>
               <LinearGradient
-                colors={[colors.electric, colors.neon]}
+                colors={[colors.electric, colors.neon] as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.heroIcon}
@@ -64,7 +64,7 @@ export default function AboutScreen() {
         <View style={styles.featuresSection}>
           <Card style={styles.featureCard} variant="glass">
             <LinearGradient
-              colors={[colors.primary, colors.electric]}
+              colors={[colors.primary, colors.electric] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.featureIconContainer}
@@ -98,7 +98,7 @@ export default function AboutScreen() {
           
           <Card style={styles.featureCard} variant="glass">
             <LinearGradient
-              colors={[colors.electric, colors.primary]}
+              colors={[colors.electric, colors.primary] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.featureIconContainer}
@@ -128,7 +128,7 @@ export default function AboutScreen() {
             ].map((instruction, index) => (
               <View key={index} style={styles.instructionItem}>
                 <LinearGradient
-                  colors={[colors.primary, colors.electric]}
+                  colors={[colors.primary, colors.electric] as [string, string, ...string[]]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.stepNumber}
