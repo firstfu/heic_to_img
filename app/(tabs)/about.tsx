@@ -74,7 +74,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               隱私優先
             </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
               完全離線處理，保護您的隱私
             </ThemedText>
           </Card>
@@ -91,7 +91,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               批量轉換
             </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
               支援多檔案同時轉換
             </ThemedText>
           </Card>
@@ -108,7 +108,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               品質保證
             </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
               保留原始品質與 EXIF 資料
             </ThemedText>
           </Card>
@@ -137,7 +137,7 @@ export default function AboutScreen() {
                     {instruction.step}
                   </ThemedText>
                 </LinearGradient>
-                <ThemedText style={[styles.instructionText, { color: colors.textSecondary }]}>
+                <ThemedText style={[styles.instructionText, { color: colors.textTertiary }]}>
                   {instruction.text}
                 </ThemedText>
               </View>
@@ -155,7 +155,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
               支援的格式
             </ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
               • 輸入格式：HEIC, HEIF{'\n'}
               • 輸出格式：JPEG, PNG
             </ThemedText>
@@ -165,7 +165,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
               品質設定
             </ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
               • 60% - 適合網頁使用{'\n'}
               • 80% - 平衡品質與檔案大小{'\n'}
               • 90% - 高品質輸出{'\n'}
@@ -177,7 +177,7 @@ export default function AboutScreen() {
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
               檔案大小限制
             </ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
               最大 50MB，支援批量選擇
             </ThemedText>
           </View>
@@ -188,7 +188,7 @@ export default function AboutScreen() {
           <ThemedText style={[styles.privacyTitle, { color: colors.textPrimary }]}>
             隱私承諾
           </ThemedText>
-          <ThemedText style={[styles.privacyText, { color: colors.textSecondary }]}>
+          <ThemedText style={[styles.privacyText, { color: colors.textTertiary }]}>
             我們重視您的隱私。所有圖片轉換都在您的裝置上進行，不會上傳到任何伺服器。
             您的檔案永遠不會離開您的裝置。
           </ThemedText>
@@ -199,7 +199,7 @@ export default function AboutScreen() {
           <ThemedText style={[styles.aboutTitle, { color: colors.textPrimary }]}>
             關於開發者
           </ThemedText>
-          <ThemedText style={[styles.aboutText, { color: colors.textSecondary }]}>
+          <ThemedText style={[styles.aboutText, { color: colors.textTertiary }]}>
             這個應用程式是使用 React Native 和 Expo 開發的開源專案。
             歡迎貢獻程式碼或提出建議！
           </ThemedText>
@@ -231,20 +231,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
     paddingTop: 0, // 因為沉浸式設計，從頂部開始
-    paddingBottom: Spacing.xxxl,
+    paddingBottom: Spacing.xxl,
   },
   
   // Hero Section
   heroContainer: {
-    marginBottom: Spacing.xl,
-    marginHorizontal: -Spacing.lg,
+    marginBottom: Spacing.lg,
+    marginHorizontal: -Spacing.md,
     overflow: 'hidden',
   },
   heroGradient: {
     paddingTop: Spacing.xxxl + 40, // 為狀態欄留出空間
-    paddingBottom: Spacing.xl,
+    paddingBottom: Spacing.lg,
     paddingHorizontal: Spacing.lg,
     ...Shadows.neon,
   },
@@ -253,16 +253,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   heroIcon: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
     ...Shadows.glow,
   },
   heroIconText: {
-    fontSize: 36,
+    fontSize: 28,
   },
   heroTitle: {
     ...Typography.h1,
@@ -274,11 +274,11 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   heroSubtitle: {
-    ...Typography.bodyLarge,
+    ...Typography.body,
     textAlign: 'center',
-    paddingHorizontal: Spacing.xl,
-    lineHeight: 28,
-    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    lineHeight: 22,
+    marginBottom: Spacing.sm,
   },
   heroDecorations: {
     flexDirection: 'row',
@@ -294,63 +294,63 @@ const styles = StyleSheet.create({
   
   // Features Section
   featuresSection: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.xl,
-    gap: Spacing.md,
+    flexDirection: 'column',
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
   },
   featureCard: {
-    width: Platform.OS === 'web' ? '30%' : '100%',
-    minHeight: 140,
+    width: '100%',
+    minHeight: 120,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: Spacing.md,
   },
   featureIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
     ...Shadows.glow,
   },
   featureIcon: {
-    fontSize: 24,
+    fontSize: 22,
   },
   featureTitle: {
-    ...Typography.h5,
+    ...Typography.labelLarge,
     textAlign: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   featureText: {
     ...Typography.bodySmall,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 19,
+    opacity: 0.8,
   },
   
   // Instructions Section
   instructionsCard: {
-    marginBottom: Spacing.xl,
-  },
-  instructionsTitle: {
-    ...Typography.h4,
     marginBottom: Spacing.lg,
   },
+  instructionsTitle: {
+    ...Typography.h5,
+    marginBottom: Spacing.md,
+  },
   instructionsList: {
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   instructionItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   stepNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.md,
+    marginRight: Spacing.sm,
     ...Shadows.glow,
   },
   stepNumberText: {
@@ -358,56 +358,56 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   instructionText: {
-    ...Typography.body,
+    ...Typography.bodySmall,
     flex: 1,
-    lineHeight: 24,
+    lineHeight: 20,
   },
   
   // Tech Details
   techCard: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   techTitle: {
-    ...Typography.h4,
-    marginBottom: Spacing.lg,
+    ...Typography.h5,
+    marginBottom: Spacing.md,
   },
   techSection: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   techSubtitle: {
-    ...Typography.labelLarge,
-    marginBottom: Spacing.sm,
+    ...Typography.labelMedium,
+    marginBottom: Spacing.xs,
   },
   techText: {
-    ...Typography.body,
-    lineHeight: 24,
+    ...Typography.bodySmall,
+    lineHeight: 20,
   },
   
   // Privacy
   privacyCard: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   privacyTitle: {
-    ...Typography.h4,
-    marginBottom: Spacing.md,
+    ...Typography.h5,
+    marginBottom: Spacing.sm,
   },
   privacyText: {
-    ...Typography.body,
-    lineHeight: 24,
+    ...Typography.bodySmall,
+    lineHeight: 20,
   },
   
   // About
   aboutCard: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
   },
   aboutTitle: {
-    ...Typography.h4,
-    marginBottom: Spacing.md,
+    ...Typography.h5,
+    marginBottom: Spacing.sm,
   },
   aboutText: {
-    ...Typography.body,
-    lineHeight: 24,
-    marginBottom: Spacing.lg,
+    ...Typography.bodySmall,
+    lineHeight: 20,
+    marginBottom: Spacing.md,
   },
   githubButton: {
     alignSelf: 'flex-start',
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   // Version
   versionSection: {
     alignItems: 'center',
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
   },
   versionText: {
     ...Typography.caption,

@@ -145,46 +145,46 @@ export const NewColors = {
 };
 
 export const Typography = {
-  // 大標題 - 使用更現代的字重
+  // 大標題 - 優化手機螢幕顯示
   h1: { 
-    fontSize: 42, 
+    fontSize: 28, 
     fontWeight: '800' as const, 
-    lineHeight: 48,
+    lineHeight: 34,
     letterSpacing: -0.02,
   },
   h2: { 
-    fontSize: 36, 
+    fontSize: 24, 
     fontWeight: '700' as const, 
-    lineHeight: 42,
+    lineHeight: 30,
     letterSpacing: -0.01,
   },
   h3: { 
-    fontSize: 28, 
+    fontSize: 22, 
     fontWeight: '600' as const, 
-    lineHeight: 36,
+    lineHeight: 28,
     letterSpacing: -0.01,
   },
   h4: { 
-    fontSize: 24, 
-    fontWeight: '600' as const, 
-    lineHeight: 32,
-  },
-  h5: { 
     fontSize: 20, 
     fontWeight: '600' as const, 
-    lineHeight: 28,
+    lineHeight: 26,
+  },
+  h5: { 
+    fontSize: 18, 
+    fontWeight: '600' as const, 
+    lineHeight: 24,
   },
   
-  // 內文
+  // 內文 - 提升可讀性
   bodyLarge: { 
-    fontSize: 18, 
-    fontWeight: '400' as const, 
-    lineHeight: 28,
-  },
-  body: { 
     fontSize: 16, 
     fontWeight: '400' as const, 
     lineHeight: 24,
+  },
+  body: { 
+    fontSize: 15, 
+    fontWeight: '400' as const, 
+    lineHeight: 22,
   },
   bodySmall: { 
     fontSize: 14, 
@@ -192,14 +192,14 @@ export const Typography = {
     lineHeight: 20,
   },
   caption: { 
-    fontSize: 12, 
+    fontSize: 13, 
     fontWeight: '400' as const, 
-    lineHeight: 16,
+    lineHeight: 18,
   },
   
   // 標籤與按鈕
   labelLarge: { 
-    fontSize: 16, 
+    fontSize: 15, 
     fontWeight: '600' as const, 
     lineHeight: 20,
   },
