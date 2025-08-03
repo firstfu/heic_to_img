@@ -5,8 +5,8 @@ import {
   View,
   Linking,
   Platform,
-  SafeAreaView,
 } from 'react-native';
+import { Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -25,25 +25,25 @@ export default function AboutScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Stack.Screen 
+        options={{
+          title: '應用資訊',
+          headerStyle: {
+            backgroundColor: colors.primary,
+          },
+          headerTintColor: colors.textInverse,
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: 18,
+          },
+          headerShadowVisible: false,
+        }}
+      />
+      
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Immersive Navigation Header */}
-        <View style={styles.navContainer}>
-          <LinearGradient
-            colors={colors.primaryGradient as [string, string, ...string[]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.navGradient}
-          >
-            <View style={styles.navContent}>
-              <ThemedText style={[styles.navTitle, { color: colors.textInverse }]}>
-                應用資訊
-              </ThemedText>
-            </View>
-          </LinearGradient>
-        </View>
 
         {/* Features Grid */}
         <View style={styles.featuresSection}>
@@ -217,34 +217,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: 0, // 因為沉浸式設計，從頂部開始
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.xl,
-  },
-  
-  // Navigation Section
-  navContainer: {
-    marginBottom: Spacing.lg,
-    marginHorizontal: -Spacing.lg,
-    overflow: 'hidden',
-  },
-  navGradient: {
-    paddingTop: Spacing.xxxl + 60, // 增加更多頂部空間以覆蓋狀態欄
-    paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
-    marginTop: -40, // 向上延伸到螢幕頂部
-    ...Shadows.neon,
-  },
-  navContent: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  navTitle: {
-    ...Typography.h2,
-    textAlign: 'center',
-    fontWeight: '800',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
   },
   
   // Features Section
