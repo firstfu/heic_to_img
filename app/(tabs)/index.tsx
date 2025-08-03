@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as Sharing from 'expo-sharing';
+import * as MediaLibrary from 'expo-media-library';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -72,6 +74,60 @@ export default function HomeScreen() {
     setConvertedFiles([]);
     setConversionProgress('');
     setProgressValue(0);
+  };
+
+  const handleShare = async (fileUri: string, fileName: string) => {
+    try {
+      if (Platform.OS === 'web') {
+        // 網頁版本使用下載
+        const link = document.createElement('a');
+        link.href = fileUri;
+        link.download = fileName;
+        link.click();
+      } else {
+        // 原生平台使用分享
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: outputFormat === 'jpeg' ? 'image/jpeg' : 'image/png',
+            dialogTitle: '分享圖片',
+          });
+        } else {
+          Alert.alert('無法分享', '此設備不支援分享功能');
+        }
+      }
+    } catch (error) {
+      console.error('分享失敗:', error);
+      Alert.alert('錯誤', '分享檔案時發生錯誤');
+    }
+  };
+
+  const handleSaveToGallery = async (fileUri: string, fileName: string) => {
+    try {
+      if (Platform.OS === 'web') {
+        // 網頁版本使用下載
+        const link = document.createElement('a');
+        link.href = fileUri;
+        link.download = fileName;
+        link.click();
+        Alert.alert('成功', '檔案已下載');
+      } else {
+        // 請求權限
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('權限不足', '需要相簿權限才能儲存圖片');
+          return;
+        }
+
+        // 儲存到相簿
+        const asset = await MediaLibrary.createAssetAsync(fileUri);
+        await MediaLibrary.createAlbumAsync('HEIC轉換', asset, false);
+        Alert.alert('成功', '圖片已儲存到相簿');
+      }
+    } catch (error) {
+      console.error('儲存失敗:', error);
+      Alert.alert('錯誤', '儲存檔案時發生錯誤');
+    }
   };
 
   const handleConvert = async () => {
@@ -349,21 +405,24 @@ export default function HomeScreen() {
                     轉換時間: {new Date(file.convertedAt).toLocaleTimeString()}
                   </ThemedText>
                 </View>
-                {Platform.OS === 'web' && (
+                <View style={styles.actionButtons}>
                   <Button
-                    title="下載"
+                    title={Platform.OS === 'web' ? '下載' : '儲存'}
+                    variant="primary"
+                    size="small"
+                    icon="💾"
+                    onPress={() => handleSaveToGallery(file.uri, file.name)}
+                    style={styles.actionButton}
+                  />
+                  <Button
+                    title="分享"
                     variant="outline"
                     size="small"
-                    icon="📥"
-                    onPress={() => {
-                      const link = document.createElement('a');
-                      link.href = file.uri;
-                      link.download = file.name;
-                      link.click();
-                    }}
-                    style={styles.downloadButton}
+                    icon="📤"
+                    onPress={() => handleShare(file.uri, file.name)}
+                    style={styles.actionButton}
                   />
-                )}
+                </View>
               </Card>
             ))}
           </Card>
@@ -560,7 +619,7 @@ const styles = StyleSheet.create({
   
   // Convert Section
   convertSection: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     marginBottom: Spacing.xl,
   },
   
@@ -603,8 +662,13 @@ const styles = StyleSheet.create({
   resultMetaText: {
     ...Typography.caption,
   },
-  downloadButton: {
-    alignSelf: 'flex-start',
+  actionButtons: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+  },
+  actionButton: {
+    flex: 1,
   },
   
   // Instructions Section
