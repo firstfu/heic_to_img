@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   heroGradient: {
-    paddingTop: Spacing.xxxl + 40, // 為狀態欄留出空間
+    paddingTop: Spacing.xxxl + 10, // 減少頂部空間
     paddingBottom: Spacing.lg,
     paddingHorizontal: Spacing.lg,
     ...Shadows.neon,
