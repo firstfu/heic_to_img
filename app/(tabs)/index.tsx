@@ -254,8 +254,6 @@ export default function HomeScreen() {
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
-        bounces={false}
-        overScrollMode="never"
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
