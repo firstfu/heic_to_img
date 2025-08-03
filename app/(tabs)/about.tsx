@@ -5,6 +5,7 @@ import {
   View,
   Linking,
   Platform,
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
@@ -28,28 +29,17 @@ export default function AboutScreen() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero Section */}
-        <View style={styles.heroContainer}>
+        {/* Immersive Navigation Header */}
+        <View style={styles.navContainer}>
           <LinearGradient
             colors={colors.primaryGradient as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.heroGradient}
+            style={styles.navGradient}
           >
-            <View style={styles.heroContent}>
-              <LinearGradient
-                colors={[colors.electric, colors.neon] as [string, string, ...string[]]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroIcon}
-              >
-                <ThemedText style={styles.heroIconText}>🔄</ThemedText>
-              </LinearGradient>
-              <ThemedText style={[styles.heroTitle, { color: colors.textInverse }]}>
-                HEIC 轉換工具
-              </ThemedText>
-              <ThemedText style={[styles.heroSubtitle, { color: colors.textInverse, opacity: 0.9 }]}>
-                快速、安全、高品質的圖片格式轉換
+            <View style={styles.navContent}>
+              <ThemedText style={[styles.navTitle, { color: colors.textInverse }]}>
+                應用資訊
               </ThemedText>
             </View>
           </LinearGradient>
@@ -226,54 +216,35 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingTop: 0, // 因為沉浸式設計，從頂部開始
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xl,
   },
   
-  // Hero Section
-  heroContainer: {
+  // Navigation Section
+  navContainer: {
     marginBottom: Spacing.lg,
-    marginHorizontal: -Spacing.md,
+    marginHorizontal: -Spacing.lg,
     overflow: 'hidden',
   },
-  heroGradient: {
-    paddingTop: Spacing.xxxl + 10, // 減少頂部空間
-    paddingBottom: Spacing.lg,
+  navGradient: {
+    paddingTop: Spacing.xxxl + 60, // 增加更多頂部空間以覆蓋狀態欄
+    paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.lg,
+    marginTop: -40, // 向上延伸到螢幕頂部
     ...Shadows.neon,
   },
-  heroContent: {
+  navContent: {
     alignItems: 'center',
     position: 'relative',
   },
-  heroIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.md,
-    ...Shadows.glow,
-  },
-  heroIconText: {
-    fontSize: 28,
-  },
-  heroTitle: {
-    ...Typography.h1,
+  navTitle: {
+    ...Typography.h2,
     textAlign: 'center',
     fontWeight: '800',
-    marginBottom: Spacing.md,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
-  },
-  heroSubtitle: {
-    ...Typography.body,
-    textAlign: 'center',
-    paddingHorizontal: Spacing.lg,
-    lineHeight: 22,
-    marginBottom: Spacing.sm,
   },
   
   // Features Section
