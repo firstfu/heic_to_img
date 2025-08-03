@@ -160,7 +160,6 @@ export function FileSelector({
                     從相簿選擇 HEIC 照片
                   </ThemedText>
                 </View>
-                <View style={[styles.optionArrow, { borderLeftColor: colors.electric }]} />
               </View>
             </LinearGradient>
           </TouchableOpacity>
@@ -199,7 +198,6 @@ export function FileSelector({
                     從檔案系統選擇
                   </ThemedText>
                 </View>
-                <View style={[styles.optionArrow, { borderLeftColor: colors.neon }]} />
               </View>
             </LinearGradient>
           </TouchableOpacity>
@@ -336,19 +334,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   
-  optionArrow: {
-    position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
-    width: 0,
-    height: 0,
-    borderTopWidth: 6,
-    borderBottomWidth: 6,
-    borderLeftWidth: 8,
-    borderTopColor: 'transparent',
-    borderBottomColor: 'transparent',
-    opacity: 0.6,
-  },
   
   disabled: {
     opacity: 0.6,
