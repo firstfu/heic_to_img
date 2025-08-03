@@ -51,11 +51,6 @@ export default function AboutScreen() {
               <ThemedText style={[styles.heroSubtitle, { color: colors.textInverse, opacity: 0.9 }]}>
                 快速、安全、高品質的圖片格式轉換
               </ThemedText>
-              <View style={styles.heroDecorations}>
-                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
-                <View style={[styles.decoration, { backgroundColor: colors.neon }]} />
-                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
-              </View>
             </View>
           </LinearGradient>
         </View>
@@ -279,17 +274,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     lineHeight: 22,
     marginBottom: Spacing.sm,
-  },
-  heroDecorations: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  decoration: {
-    width: 8,
-    height: 8,
-    borderRadius: BorderRadius.full,
-    opacity: 0.8,
   },
   
   // Features Section
