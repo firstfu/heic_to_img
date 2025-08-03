@@ -254,6 +254,8 @@ export default function HomeScreen() {
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
@@ -324,28 +326,29 @@ export default function HomeScreen() {
               <View style={[styles.settingIndicator, { backgroundColor: colors.primary }]} />
             </View>
             <View style={styles.formatButtonsContainer}>
-              <View style={[styles.formatButtons, { backgroundColor: isDark ? colors.surfaceElevated : colors.surfaceAccent }]}>
+              <View style={[styles.formatButtons, { backgroundColor: colors.surfaceGlass, borderWidth: 1, borderColor: colors.surfaceGlassBorder }]}>
                 <Card
                   style={[
                     styles.formatCard,
+                    { backgroundColor: outputFormat === 'jpeg' ? colors.primary : colors.surface },
                     outputFormat === 'jpeg' && [styles.formatCardActive, { 
                       borderColor: colors.primary,
-                      backgroundColor: colors.primarySubtle 
+                      backgroundColor: colors.primary 
                     }]
                   ]}
-                  variant={outputFormat === 'jpeg' ? 'outlined' : 'glass'}
+                  variant={outputFormat === 'jpeg' ? 'primary' : 'glass'}
                   onPress={() => setOutputFormat('jpeg')}
                   disabled={isConverting}
                 >
                   <ThemedText style={[
                     styles.formatTitle,
-                    { color: outputFormat === 'jpeg' ? colors.primary : colors.textPrimary }
+                    { color: outputFormat === 'jpeg' ? colors.textInverse : colors.textPrimary }
                   ]}>
                     JPEG
                   </ThemedText>
                   <ThemedText style={[
                     styles.formatDesc,
-                    { color: outputFormat === 'jpeg' ? colors.primary : colors.textSecondary }
+                    { color: outputFormat === 'jpeg' ? colors.textInverse : colors.textSecondary }
                   ]}>
                     較小檔案
                   </ThemedText>
@@ -353,24 +356,25 @@ export default function HomeScreen() {
                 <Card
                   style={[
                     styles.formatCard,
+                    { backgroundColor: outputFormat === 'png' ? colors.primary : colors.surface },
                     outputFormat === 'png' && [styles.formatCardActive, { 
                       borderColor: colors.primary,
-                      backgroundColor: colors.primarySubtle 
+                      backgroundColor: colors.primary 
                     }]
                   ]}
-                  variant={outputFormat === 'png' ? 'outlined' : 'glass'}
+                  variant={outputFormat === 'png' ? 'primary' : 'glass'}
                   onPress={() => setOutputFormat('png')}
                   disabled={isConverting}
                 >
                   <ThemedText style={[
                     styles.formatTitle,
-                    { color: outputFormat === 'png' ? colors.primary : colors.textPrimary }
+                    { color: outputFormat === 'png' ? colors.textInverse : colors.textPrimary }
                   ]}>
                     PNG
                   </ThemedText>
                   <ThemedText style={[
                     styles.formatDesc,
-                    { color: outputFormat === 'png' ? colors.primary : colors.textSecondary }
+                    { color: outputFormat === 'png' ? colors.textInverse : colors.textSecondary }
                   ]}>
                     無損品質
                   </ThemedText>
@@ -392,8 +396,8 @@ export default function HomeScreen() {
                   <ThemedText style={[styles.qualityValue, { color: colors.primary }]}>
                     {Math.round(quality * 100)}%
                   </ThemedText>
-                  <View style={[styles.qualityBadge, { backgroundColor: colors.primarySubtle }]}>
-                    <ThemedText style={[styles.qualityBadgeText, { color: colors.primary }]}>
+                  <View style={[styles.qualityBadge, { backgroundColor: colors.primary }]}>
+                    <ThemedText style={[styles.qualityBadgeText, { color: colors.textInverse }]}>
                       {quality <= 0.6 ? '網頁' : quality <= 0.8 ? '平衡' : quality <= 0.9 ? '高品質' : '無損'}
                     </ThemedText>
                   </View>
@@ -437,12 +441,13 @@ export default function HomeScreen() {
                     key={item.value}
                     style={[
                       styles.qualityCard,
+                      { backgroundColor: quality === item.value ? colors.primary : colors.surface },
                       quality === item.value && [styles.qualityCardActive, { 
                         borderColor: colors.primary,
-                        backgroundColor: colors.primarySubtle 
+                        backgroundColor: colors.primary 
                       }]
                     ]}
-                    variant={quality === item.value ? 'outlined' : 'glass'}
+                    variant={quality === item.value ? 'primary' : 'glass'}
                     onPress={() => setQuality(item.value)}
                     disabled={isConverting}
                   >
@@ -451,13 +456,13 @@ export default function HomeScreen() {
                     </ThemedText>
                     <ThemedText style={[
                       styles.qualityCardValue, 
-                      { color: quality === item.value ? colors.primary : colors.textPrimary }
+                      { color: quality === item.value ? colors.textInverse : colors.textPrimary }
                     ]}>
                       {item.label}
                     </ThemedText>
                     <ThemedText style={[
                       styles.qualityCardDesc, 
-                      { color: quality === item.value ? colors.primary : colors.textSecondary }
+                      { color: quality === item.value ? colors.textInverse : colors.textSecondary }
                     ]}>
                       {item.desc}
                     </ThemedText>
@@ -475,8 +480,8 @@ export default function HomeScreen() {
                   <ThemedText style={[styles.estimationTitle, { color: colors.textSecondary }]}>
                     轉換預估
                   </ThemedText>
-                  <View style={[styles.estimationIcon, { backgroundColor: colors.infoSubtle }]}>
-                    <ThemedText style={[styles.estimationIconText, { color: colors.info }]}>
+                  <View style={[styles.estimationIcon, { backgroundColor: colors.primary }]}>
+                    <ThemedText style={[styles.estimationIconText, { color: colors.textInverse }]}>
                       📊
                     </ThemedText>
                   </View>
@@ -644,9 +649,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerGradient: {
-    paddingTop: Spacing.xxxl + 40, // 為狀態欄留出空間
+    paddingTop: Spacing.xxxl + 60, // 增加更多頂部空間以覆蓋狀態欄
     paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.lg,
+    marginTop: -40, // 向上延伸到螢幕頂部
     ...Shadows.neon,
   },
   headerContent: {
@@ -747,7 +753,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     padding: 6,
     borderRadius: BorderRadius.lg,
-    ...Shadows.subtle,
+    ...Shadows.glass,
   },
   formatCard: {
     flex: 1,
@@ -807,9 +813,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(0, 122, 255, 0.05)',
     borderRadius: BorderRadius.md,
     marginHorizontal: Spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 122, 255, 0.1)',
   },
   qualitySlider: {
     height: 40,
