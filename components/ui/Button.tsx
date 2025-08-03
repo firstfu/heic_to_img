@@ -19,7 +19,7 @@ interface ButtonProps {
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   loading?: boolean;
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | string;
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
   style?: ViewStyle;
@@ -148,11 +148,23 @@ export function Button({
           ) : (
             <>
               {icon && iconPosition === 'left' && (
-                <View style={styles.iconLeft}>{icon}</View>
+                <View style={styles.iconLeft}>
+                  {typeof icon === 'string' ? (
+                    <ThemedText style={textStyles}>{icon}</ThemedText>
+                  ) : (
+                    icon
+                  )}
+                </View>
               )}
               <ThemedText style={textStyles}>{title}</ThemedText>
               {icon && iconPosition === 'right' && (
-                <View style={styles.iconRight}>{icon}</View>
+                <View style={styles.iconRight}>
+                  {typeof icon === 'string' ? (
+                    <ThemedText style={textStyles}>{icon}</ThemedText>
+                  ) : (
+                    icon
+                  )}
+                </View>
               )}
             </>
           )}
@@ -177,11 +189,23 @@ export function Button({
         ) : (
           <>
             {icon && iconPosition === 'left' && (
-              <View style={styles.iconLeft}>{icon}</View>
+              <View style={styles.iconLeft}>
+                {typeof icon === 'string' ? (
+                  <ThemedText style={textStyles}>{icon}</ThemedText>
+                ) : (
+                  icon
+                )}
+              </View>
             )}
             <ThemedText style={textStyles}>{title}</ThemedText>
             {icon && iconPosition === 'right' && (
-              <View style={styles.iconRight}>{icon}</View>
+              <View style={styles.iconRight}>
+                {typeof icon === 'string' ? (
+                  <ThemedText style={textStyles}>{icon}</ThemedText>
+                ) : (
+                  icon
+                )}
+              </View>
             )}
           </>
         )}

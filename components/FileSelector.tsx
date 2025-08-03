@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   StyleSheet,
@@ -9,14 +9,16 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { NewColors, Typography, Spacing, BorderRadius } from '@/constants/NewColors';
+import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 interface FileSelectorProps {
   selectedFiles: any[];
   onFilesSelected: (files: any[]) => void;
   onClearFiles: () => void;
   disabled?: boolean;
+  showPhotoOption?: boolean;
 }
 
 export function FileSelector({
@@ -24,10 +26,43 @@ export function FileSelector({
   onFilesSelected,
   onClearFiles,
   disabled = false,
+  showPhotoOption = false,
 }: FileSelectorProps) {
-  const [isDragActive] = useState(false);
   const isDark = useThemeColor({}, 'background') === '#151718';
   const colors = isDark ? NewColors.dark : NewColors.light;
+
+  const handleSelectFromPhotos = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('權限不足', '需要相簿權限才能選擇照片');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets) {
+        // 將 ImagePicker 的結果轉換為統一格式
+        const files = result.assets.map(asset => ({
+          name: asset.uri.split('/').pop() || 'image.heic',
+          uri: asset.uri,
+          size: 0, // ImagePicker 不提供檔案大小
+          mimeType: 'image/heic',
+        }));
+
+        onFilesSelected(files);
+        Alert.alert('成功', `已選擇 ${files.length} 個檔案`);
+      }
+    } catch (error) {
+      console.error('選擇照片時發生錯誤:', error);
+      Alert.alert('錯誤', '選擇照片時發生錯誤，請重試');
+    }
+  };
 
   const handleSelectFiles = async () => {
     try {
@@ -67,48 +102,49 @@ export function FileSelector({
 
   return (
     <View style={styles.container}>
-      <Card
-        style={[
-          styles.dropZone,
-          {
-            borderColor: isDragActive ? colors.primary : colors.border,
-            backgroundColor: isDragActive ? colors.primary + '10' : colors.surface,
-          },
-        ]}
-        onPress={disabled ? undefined : handleSelectFiles}
-        disabled={disabled}
-      >
-        <View style={styles.dropContent}>
-          <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
-            <ThemedText style={styles.dropIcon}>📁</ThemedText>
+      <View style={styles.selectionOptions}>
+        <Card
+          style={[
+            styles.optionCard,
+            { backgroundColor: colors.surface }
+          ]}
+          onPress={disabled ? undefined : handleSelectFromPhotos}
+          disabled={disabled}
+        >
+          <View style={styles.optionContent}>
+            <View style={[styles.optionIconContainer, { backgroundColor: colors.primary + '15' }]}>
+              <ThemedText style={styles.optionIcon}>📷</ThemedText>
+            </View>
+            <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
+              選擇相簿
+            </ThemedText>
+            <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+              從相簿選擇 HEIC 照片
+            </ThemedText>
           </View>
-          
-          <ThemedText style={[styles.dropTitle, { color: colors.textPrimary }]}>
-            {isDragActive ? '釋放檔案以上傳' : '選擇 HEIC 檔案'}
-          </ThemedText>
-          
-          <ThemedText style={[styles.dropSubtitle, { color: colors.textSecondary }]}>
-            點擊選擇檔案或拖拽到此區域
-          </ThemedText>
-          
-          <View style={styles.supportedFormats}>
-            <StatusBadge
-              status="info"
-              text="HEIC"
-              size="small"
-            />
-            <StatusBadge
-              status="info"
-              text="HEIF"
-              size="small"
-            />
+        </Card>
+        
+        <Card
+          style={[
+            styles.optionCard,
+            { backgroundColor: colors.surface }
+          ]}
+          onPress={disabled ? undefined : handleSelectFiles}
+          disabled={disabled}
+        >
+          <View style={styles.optionContent}>
+            <View style={[styles.optionIconContainer, { backgroundColor: colors.secondary + '15' }]}>
+              <ThemedText style={styles.optionIcon}>📁</ThemedText>
+            </View>
+            <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
+              選擇檔案
+            </ThemedText>
+            <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+              從檔案系統選擇
+            </ThemedText>
           </View>
-          
-          <ThemedText style={[styles.hint, { color: colors.textTertiary }]}>
-            最大 50MB • 支援批量選擇
-          </ThemedText>
-        </View>
-      </Card>
+        </Card>
+      </View>
 
       {selectedFiles.length > 0 && (
         <Card style={styles.selectedFilesCard} variant="elevated">
@@ -166,43 +202,43 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   
-  dropZone: {
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    minHeight: 200,
-    justifyContent: 'center',
-  },
-  dropContent: {
-    alignItems: 'center',
-    padding: Spacing.xl,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  dropIcon: {
-    fontSize: 28,
-  },
-  dropTitle: {
-    ...Typography.h5,
-    textAlign: 'center',
-    marginBottom: Spacing.sm,
-  },
-  dropSubtitle: {
-    ...Typography.body,
-    textAlign: 'center',
-    marginBottom: Spacing.lg,
-  },
-  supportedFormats: {
+  selectionOptions: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    gap: Spacing.md,
+  },
+  
+  optionCard: {
+    flex: 1,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.sm,
+  },
+  
+  optionContent: {
+    alignItems: 'center',
+  },
+  
+  optionIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.md,
   },
-  hint: {
+  
+  optionIcon: {
+    fontSize: 24,
+  },
+  
+  optionTitle: {
+    ...Typography.labelLarge,
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+    fontWeight: '600',
+  },
+  
+  optionSubtitle: {
     ...Typography.caption,
     textAlign: 'center',
   },

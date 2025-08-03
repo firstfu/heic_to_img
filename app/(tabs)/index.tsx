@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -141,21 +142,60 @@ export default function HomeScreen() {
   };
 
   return (
-    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+    <ThemedView style={styles.container}>
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={[
+          isDark ? '#1a1f3a' : '#f8f9ff',
+          isDark ? '#0f1219' : '#ffffff',
+          isDark ? '#151923' : '#f5f7ff',
+        ]}
+        style={styles.backgroundGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      />
+      
+      {/* Decorative Elements */}
+      <View style={styles.decorativeCircle1} />
+      <View style={styles.decorativeCircle2} />
+      
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* File Selection - Main Function */}
-        <FileSelector
-          selectedFiles={selectedFiles}
-          onFilesSelected={handleFilesSelected}
-          onClearFiles={handleClearAll}
-          disabled={isConverting}
-        />
+        {/* Main Card Container */}
+        <View style={styles.mainCard}>
+          {Platform.OS === 'ios' && (
+            <BlurView intensity={80} tint={isDark ? 'dark' : 'light'} style={styles.blurContainer}>
+              <View style={[styles.cardContent, { backgroundColor: colors.surface + '95' }]}>
+                <FileSelector
+                  selectedFiles={selectedFiles}
+                  onFilesSelected={handleFilesSelected}
+                  onClearFiles={handleClearAll}
+                  disabled={isConverting}
+                  showPhotoOption={true}
+                />
+              </View>
+            </BlurView>
+          )}
+          {Platform.OS !== 'ios' && (
+            <View style={[styles.cardContent, { backgroundColor: colors.surface + 'F0' }]}>
+              <FileSelector
+                selectedFiles={selectedFiles}
+                onFilesSelected={handleFilesSelected}
+                onClearFiles={handleClearAll}
+                disabled={isConverting}
+                showPhotoOption={true}
+              />
+            </View>
+          )}
+        </View>
 
         {/* Settings Section */}
-        <Card style={styles.settingsCard}>
+        <View style={styles.settingsContainer}>
+          {Platform.OS === 'ios' ? (
+            <BlurView intensity={80} tint={isDark ? 'dark' : 'light'} style={styles.blurContainer}>
+              <View style={[styles.settingsContent, { backgroundColor: colors.surface + '95' }]}>
           <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
             轉換設定
           </ThemedText>
@@ -202,29 +242,60 @@ export default function HomeScreen() {
               ))}
             </View>
           </View>
-        </Card>
+              </View>
+            </BlurView>
+          ) : (
+            <Card style={[styles.settingsCard, { backgroundColor: colors.surface + 'F0' }]}>
+              <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
+                轉換設定
+              </ThemedText>
+              
+              <View style={styles.settingRow}>
+                <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
+                  輸出格式
+                </ThemedText>
+                <View style={styles.formatButtons}>
+                  <Button
+                    title="JPEG"
+                    variant={outputFormat === 'jpeg' ? 'primary' : 'outline'}
+                    size="small"
+                    onPress={() => setOutputFormat('jpeg')}
+                    disabled={isConverting}
+                    style={styles.formatButton}
+                  />
+                  <Button
+                    title="PNG"
+                    variant={outputFormat === 'png' ? 'primary' : 'outline'}
+                    size="small"
+                    onPress={() => setOutputFormat('png')}
+                    disabled={isConverting}
+                    style={styles.formatButton}
+                  />
+                </View>
+              </View>
 
-        {/* Quick Features */}
-        <View style={styles.quickFeatures}>
-          <View style={styles.quickFeatureItem}>
-            <ThemedText style={styles.quickFeatureIcon}>🔒</ThemedText>
-            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
-              離線處理
-            </ThemedText>
-          </View>
-          <View style={styles.quickFeatureItem}>
-            <ThemedText style={styles.quickFeatureIcon}>⚡</ThemedText>
-            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
-              批量轉換
-            </ThemedText>
-          </View>
-          <View style={styles.quickFeatureItem}>
-            <ThemedText style={styles.quickFeatureIcon}>🎯</ThemedText>
-            <ThemedText style={[styles.quickFeatureText, { color: colors.textSecondary }]}>
-              保留 EXIF
-            </ThemedText>
-          </View>
+              <View style={styles.settingRow}>
+                <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
+                  品質: {Math.round(quality * 100)}%
+                </ThemedText>
+                <View style={styles.qualityButtons}>
+                  {[0.6, 0.8, 0.9, 1.0].map((q) => (
+                    <Button
+                      key={q}
+                      title={`${Math.round(q * 100)}%`}
+                      variant={quality === q ? 'primary' : 'outline'}
+                      size="small"
+                      onPress={() => setQuality(q)}
+                      disabled={isConverting}
+                      style={styles.qualityButton}
+                    />
+                  ))}
+                </View>
+              </View>
+            </Card>
+          )}
         </View>
+
 
         {/* Convert Button */}
         {selectedFiles.length > 0 && (
@@ -315,6 +386,32 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  decorativeCircle1: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    top: -150,
+    right: -100,
+  },
+  decorativeCircle2: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    bottom: 100,
+    left: -50,
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
@@ -403,10 +500,37 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   
+  // Main Card
+  mainCard: {
+    marginBottom: Spacing.xl,
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    ...Shadows.lg,
+  },
+  blurContainer: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+  },
+  cardContent: {
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+  },
+  
   // Settings Section
+  settingsContainer: {
+    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    ...Shadows.md,
+  },
+  settingsContent: {
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+  },
   settingsCard: {
     marginBottom: Spacing.lg,
     marginTop: Spacing.sm,
+    ...Shadows.md,
   },
   settingsTitle: {
     ...Typography.h4,
@@ -514,25 +638,5 @@ const styles = StyleSheet.create({
     ...Typography.body,
     flex: 1,
     lineHeight: 24,
-  },
-  
-  // Quick Features
-  quickFeatures: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: Spacing.md,
-    marginBottom: Spacing.lg,
-  },
-  quickFeatureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
-  quickFeatureIcon: {
-    fontSize: 20,
-  },
-  quickFeatureText: {
-    ...Typography.caption,
   },
 });

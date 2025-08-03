@@ -6,7 +6,8 @@
       "Bash(npx expo start:*)",
       "Bash(npm run lint)",
       "Bash(pkill:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npx expo install:*)"
     ],
     "deny": []
   }
