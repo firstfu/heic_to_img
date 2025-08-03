@@ -260,7 +260,7 @@ export default function HomeScreen() {
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <LinearGradient
-            colors={colors.primaryGradient}
+            colors={colors.primaryGradient as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.headerGradient}
@@ -328,15 +328,16 @@ export default function HomeScreen() {
             <View style={styles.formatButtonsContainer}>
               <View style={[styles.formatButtons, { backgroundColor: colors.surfaceGlass, borderWidth: 1, borderColor: colors.surfaceGlassBorder }]}>
                 <Card
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.formatCard,
                     { backgroundColor: outputFormat === 'jpeg' ? colors.primary : colors.surface },
-                    outputFormat === 'jpeg' && [styles.formatCardActive, { 
+                    outputFormat === 'jpeg' && styles.formatCardActive,
+                    outputFormat === 'jpeg' && { 
                       borderColor: colors.primary,
                       backgroundColor: colors.primary 
-                    }]
-                  ]}
-                  variant={outputFormat === 'jpeg' ? 'primary' : 'glass'}
+                    }
+                  ])}
+                  variant="glass"
                   onPress={() => setOutputFormat('jpeg')}
                   disabled={isConverting}
                 >
@@ -354,15 +355,16 @@ export default function HomeScreen() {
                   </ThemedText>
                 </Card>
                 <Card
-                  style={[
+                  style={StyleSheet.flatten([
                     styles.formatCard,
                     { backgroundColor: outputFormat === 'png' ? colors.primary : colors.surface },
-                    outputFormat === 'png' && [styles.formatCardActive, { 
+                    outputFormat === 'png' && styles.formatCardActive,
+                    outputFormat === 'png' && { 
                       borderColor: colors.primary,
                       backgroundColor: colors.primary 
-                    }]
-                  ]}
-                  variant={outputFormat === 'png' ? 'primary' : 'glass'}
+                    }
+                  ])}
+                  variant="glass"
                   onPress={() => setOutputFormat('png')}
                   disabled={isConverting}
                 >
@@ -439,15 +441,16 @@ export default function HomeScreen() {
                 ].map((item) => (
                   <Card 
                     key={item.value}
-                    style={[
+                    style={StyleSheet.flatten([
                       styles.qualityCard,
                       { backgroundColor: quality === item.value ? colors.primary : colors.surface },
-                      quality === item.value && [styles.qualityCardActive, { 
+                      quality === item.value && styles.qualityCardActive,
+                      quality === item.value && { 
                         borderColor: colors.primary,
                         backgroundColor: colors.primary 
-                      }]
-                    ]}
-                    variant={quality === item.value ? 'primary' : 'glass'}
+                      }
+                    ])}
+                    variant="glass"
                     onPress={() => setQuality(item.value)}
                     disabled={isConverting}
                   >
@@ -704,7 +707,7 @@ const styles = StyleSheet.create({
   settingsCard: {
     marginBottom: Spacing.lg,
     padding: Spacing.lg,
-    ...Shadows.card,
+    ...Shadows.lg,
   },
   settingsHeader: {
     flexDirection: 'row',
