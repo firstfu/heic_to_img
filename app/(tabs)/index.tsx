@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
   ScrollView,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
@@ -31,6 +33,59 @@ export default function HomeScreen() {
   const isDark = useThemeColor({}, 'background') === '#151718';
   const colors = isDark ? NewColors.dark : NewColors.light;
   const [progressValue, setProgressValue] = useState(0);
+  
+  const fadeAnim = useState(() => new Animated.Value(0))[0];
+  const slideAnim = useState(() => new Animated.Value(30))[0];
+  const scaleAnim = useState(() => new Animated.Value(0.95))[0];
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 100,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, slideAnim, scaleAnim]);
+
+  const getQualityInfo = (quality: number, format: 'jpeg' | 'png') => {
+    const avgFileSize = selectedFiles.reduce((acc, file) => acc + (file.size || 5000000), 0) / selectedFiles.length;
+    
+    let sizeMultiplier;
+    if (format === 'png') {
+      sizeMultiplier = quality * 1.5; // PNG 通常較大
+    } else {
+      sizeMultiplier = quality * 0.8; // JPEG 較小
+    }
+    
+    const estimatedSize = avgFileSize * sizeMultiplier;
+    const estimatedTime = selectedFiles.length * (format === 'png' ? 3 : 2); // PNG 需要更多時間
+    
+    return {
+      sizePerFile: formatFileSize(estimatedSize),
+      totalSize: formatFileSize(estimatedSize * selectedFiles.length),
+      estimatedTime: estimatedTime
+    };
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
 
   const convertHeicToJpg = async (fileUri: string): Promise<string | null> => {
     try {
@@ -239,7 +294,14 @@ export default function HomeScreen() {
         </Card>
 
         {/* Settings Section */}
-        <Card style={styles.settingsCard} variant="gradient">
+        <Animated.View style={{
+          opacity: fadeAnim,
+          transform: [
+            { translateY: slideAnim },
+            { scale: scaleAnim }
+          ]
+        }}>
+          <Card style={styles.settingsCard} variant="gradient">
           <View style={styles.settingsHeader}>
             <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
               轉換設定
@@ -263,22 +325,56 @@ export default function HomeScreen() {
             </View>
             <View style={styles.formatButtonsContainer}>
               <View style={[styles.formatButtons, { backgroundColor: isDark ? colors.surfaceElevated : colors.surfaceAccent }]}>
-                <Button
-                  title="JPEG"
-                  variant={outputFormat === 'jpeg' ? 'primary' : 'ghost'}
-                  size="small"
+                <Card
+                  style={[
+                    styles.formatCard,
+                    outputFormat === 'jpeg' && [styles.formatCardActive, { 
+                      borderColor: colors.primary,
+                      backgroundColor: colors.primarySubtle 
+                    }]
+                  ]}
+                  variant={outputFormat === 'jpeg' ? 'outlined' : 'glass'}
                   onPress={() => setOutputFormat('jpeg')}
                   disabled={isConverting}
-                  style={styles.formatButton}
-                />
-                <Button
-                  title="PNG"
-                  variant={outputFormat === 'png' ? 'primary' : 'ghost'}
-                  size="small"
+                >
+                  <ThemedText style={[
+                    styles.formatTitle,
+                    { color: outputFormat === 'jpeg' ? colors.primary : colors.textPrimary }
+                  ]}>
+                    JPEG
+                  </ThemedText>
+                  <ThemedText style={[
+                    styles.formatDesc,
+                    { color: outputFormat === 'jpeg' ? colors.primary : colors.textSecondary }
+                  ]}>
+                    較小檔案
+                  </ThemedText>
+                </Card>
+                <Card
+                  style={[
+                    styles.formatCard,
+                    outputFormat === 'png' && [styles.formatCardActive, { 
+                      borderColor: colors.primary,
+                      backgroundColor: colors.primarySubtle 
+                    }]
+                  ]}
+                  variant={outputFormat === 'png' ? 'outlined' : 'glass'}
                   onPress={() => setOutputFormat('png')}
                   disabled={isConverting}
-                  style={styles.formatButton}
-                />
+                >
+                  <ThemedText style={[
+                    styles.formatTitle,
+                    { color: outputFormat === 'png' ? colors.primary : colors.textPrimary }
+                  ]}>
+                    PNG
+                  </ThemedText>
+                  <ThemedText style={[
+                    styles.formatDesc,
+                    { color: outputFormat === 'png' ? colors.primary : colors.textSecondary }
+                  ]}>
+                    無損品質
+                  </ThemedText>
+                </Card>
               </View>
             </View>
           </View>
@@ -292,30 +388,67 @@ export default function HomeScreen() {
             </View>
             <View style={styles.qualitySection}>
               <View style={styles.qualityDisplay}>
-                <ThemedText style={[styles.qualityValue, { color: colors.primary }]}>
-                  {Math.round(quality * 100)}%
-                </ThemedText>
+                <View style={styles.qualityValueContainer}>
+                  <ThemedText style={[styles.qualityValue, { color: colors.primary }]}>
+                    {Math.round(quality * 100)}%
+                  </ThemedText>
+                  <View style={[styles.qualityBadge, { backgroundColor: colors.primarySubtle }]}>
+                    <ThemedText style={[styles.qualityBadgeText, { color: colors.primary }]}>
+                      {quality <= 0.6 ? '網頁' : quality <= 0.8 ? '平衡' : quality <= 0.9 ? '高品質' : '無損'}
+                    </ThemedText>
+                  </View>
+                </View>
                 <ThemedText style={[styles.qualityDesc, { color: colors.textSecondary }]}>
-                  {quality <= 0.6 ? '網頁最佳化' : quality <= 0.8 ? '平衡品質' : quality <= 0.9 ? '高品質' : '無損品質'}
+                  {quality <= 0.6 ? '最小檔案大小' : quality <= 0.8 ? '品質與大小平衡' : quality <= 0.9 ? '高品質輸出' : '無損壓縮'}
                 </ThemedText>
               </View>
+              
+              <View style={styles.sliderContainer}>
+                <Slider
+                  style={styles.qualitySlider}
+                  minimumValue={0.5}
+                  maximumValue={1.0}
+                  step={0.1}
+                  value={quality}
+                  onValueChange={setQuality}
+                  disabled={isConverting}
+                  minimumTrackTintColor={colors.primary}
+                  maximumTrackTintColor={colors.surfaceElevated}
+                  thumbTintColor={colors.primary}
+                />
+                <View style={styles.sliderLabels}>
+                  <ThemedText style={[styles.sliderLabel, { color: colors.textTertiary }]}>
+                    50%
+                  </ThemedText>
+                  <ThemedText style={[styles.sliderLabel, { color: colors.textTertiary }]}>
+                    100%
+                  </ThemedText>
+                </View>
+              </View>
+
               <View style={styles.qualityButtons}>
                 {[
-                  { value: 0.6, label: '60%', desc: '網頁' },
-                  { value: 0.8, label: '80%', desc: '平衡' },
-                  { value: 0.9, label: '90%', desc: '高品質' },
-                  { value: 1.0, label: '100%', desc: '無損' }
+                  { value: 0.6, label: '60%', desc: '網頁', icon: '🌐' },
+                  { value: 0.8, label: '80%', desc: '平衡', icon: '⚖️' },
+                  { value: 0.9, label: '90%', desc: '高品質', icon: '⭐' },
+                  { value: 1.0, label: '100%', desc: '無損', icon: '💎' }
                 ].map((item) => (
                   <Card 
                     key={item.value}
                     style={[
                       styles.qualityCard,
-                      quality === item.value && [styles.qualityCardActive, { borderColor: colors.primary }]
+                      quality === item.value && [styles.qualityCardActive, { 
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primarySubtle 
+                      }]
                     ]}
                     variant={quality === item.value ? 'outlined' : 'glass'}
                     onPress={() => setQuality(item.value)}
                     disabled={isConverting}
                   >
+                    <ThemedText style={styles.qualityCardIcon}>
+                      {item.icon}
+                    </ThemedText>
                     <ThemedText style={[
                       styles.qualityCardValue, 
                       { color: quality === item.value ? colors.primary : colors.textPrimary }
@@ -333,7 +466,66 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
-        </Card>
+
+          {/* Estimation Info */}
+          {selectedFiles.length > 0 && (
+            <View style={styles.estimationContainer}>
+              <Card style={styles.estimationCard} variant="glass">
+                <View style={styles.estimationHeader}>
+                  <ThemedText style={[styles.estimationTitle, { color: colors.textSecondary }]}>
+                    轉換預估
+                  </ThemedText>
+                  <View style={[styles.estimationIcon, { backgroundColor: colors.infoSubtle }]}>
+                    <ThemedText style={[styles.estimationIconText, { color: colors.info }]}>
+                      📊
+                    </ThemedText>
+                  </View>
+                </View>
+                
+                {(() => {
+                  const info = getQualityInfo(quality, outputFormat);
+                  return (
+                    <View style={styles.estimationGrid}>
+                      <View style={styles.estimationItem}>
+                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
+                          平均檔案大小
+                        </ThemedText>
+                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
+                          {info.sizePerFile}
+                        </ThemedText>
+                      </View>
+                      <View style={styles.estimationItem}>
+                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
+                          總計大小
+                        </ThemedText>
+                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
+                          {info.totalSize}
+                        </ThemedText>
+                      </View>
+                      <View style={styles.estimationItem}>
+                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
+                          預估時間
+                        </ThemedText>
+                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
+                          ~{info.estimatedTime}秒
+                        </ThemedText>
+                      </View>
+                      <View style={styles.estimationItem}>
+                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
+                          檔案數量
+                        </ThemedText>
+                        <ThemedText style={[styles.estimationValue, { color: colors.primary }]}>
+                          {selectedFiles.length} 個
+                        </ThemedText>
+                      </View>
+                    </View>
+                  );
+                })()}
+              </Card>
+            </View>
+          )}
+          </Card>
+        </Animated.View>
 
 
         {/* Convert Button */}
@@ -505,6 +697,8 @@ const styles = StyleSheet.create({
   // Settings Section
   settingsCard: {
     marginBottom: Spacing.lg,
+    padding: Spacing.lg,
+    ...Shadows.card,
   },
   settingsHeader: {
     flexDirection: 'row',
@@ -551,29 +745,84 @@ const styles = StyleSheet.create({
   formatButtons: {
     flexDirection: 'row',
     gap: Spacing.sm,
-    padding: 4,
+    padding: 6,
     borderRadius: BorderRadius.lg,
+    ...Shadows.subtle,
   },
-  formatButton: {
+  formatCard: {
     flex: 1,
+    minHeight: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.md,
+  },
+  formatCardActive: {
+    borderWidth: 2,
+    ...Shadows.glow,
+  },
+  formatTitle: {
+    ...Typography.labelLarge,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  formatDesc: {
+    ...Typography.caption,
+    fontSize: 11,
+    textAlign: 'center',
   },
   qualitySection: {
     marginTop: Spacing.sm,
   },
   qualityDisplay: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.md,
+    alignItems: 'flex-start',
+    marginBottom: Spacing.lg,
     paddingHorizontal: Spacing.sm,
+  },
+  qualityValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   qualityValue: {
     ...Typography.h3,
     fontWeight: '700',
+    marginRight: Spacing.md,
+  },
+  qualityBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+  },
+  qualityBadgeText: {
+    ...Typography.caption,
+    fontSize: 11,
+    fontWeight: '600',
   },
   qualityDesc: {
     ...Typography.caption,
     fontWeight: '500',
+    opacity: 0.8,
+  },
+  sliderContainer: {
+    marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: BorderRadius.md,
+    marginHorizontal: Spacing.xs,
+  },
+  qualitySlider: {
+    height: 40,
+    marginVertical: Spacing.sm,
+  },
+  sliderLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -8,
+  },
+  sliderLabel: {
+    ...Typography.caption,
+    fontSize: 10,
   },
   qualityButtons: {
     flexDirection: 'row',
@@ -581,7 +830,7 @@ const styles = StyleSheet.create({
   },
   qualityCard: {
     flex: 1,
-    minHeight: 64,
+    minHeight: 76,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.sm,
@@ -590,6 +839,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     ...Shadows.glow,
   },
+  qualityCardIcon: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
   qualityCardValue: {
     ...Typography.labelMedium,
     fontWeight: '600',
@@ -597,7 +850,56 @@ const styles = StyleSheet.create({
   },
   qualityCardDesc: {
     ...Typography.caption,
-    fontSize: 10,
+    fontSize: 9,
+    textAlign: 'center',
+  },
+  
+  // Estimation Section
+  estimationContainer: {
+    marginTop: Spacing.lg,
+  },
+  estimationCard: {
+    padding: Spacing.md,
+  },
+  estimationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  estimationTitle: {
+    ...Typography.labelLarge,
+    fontWeight: '600',
+  },
+  estimationIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: BorderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  estimationIconText: {
+    fontSize: 14,
+  },
+  estimationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+  },
+  estimationItem: {
+    flex: 1,
+    minWidth: '45%',
+    alignItems: 'center',
+  },
+  estimationLabel: {
+    ...Typography.caption,
+    fontSize: 11,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  estimationValue: {
+    ...Typography.labelMedium,
+    fontWeight: '600',
     textAlign: 'center',
   },
   
