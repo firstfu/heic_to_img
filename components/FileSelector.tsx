@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
   Alert,
+  Animated,
+  TouchableOpacity,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -30,6 +33,27 @@ export function FileSelector({
 }: FileSelectorProps) {
   const isDark = useThemeColor({}, 'background') === '#151718';
   const colors = isDark ? NewColors.dark : NewColors.light;
+  
+  const [photoHover, setPhotoHover] = useState(false);
+  const [fileHover, setFileHover] = useState(false);
+  const [scaleAnimPhoto] = useState(new Animated.Value(1));
+  const [scaleAnimFile] = useState(new Animated.Value(1));
+
+  const animatePress = (scaleAnim: Animated.Value, action: () => void) => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    action();
+  };
 
   const handleSelectFromPhotos = async () => {
     try {
@@ -103,47 +127,83 @@ export function FileSelector({
   return (
     <View style={styles.container}>
       <View style={styles.selectionOptions}>
-        <Card
-          style={[
-            styles.optionCard,
-            { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }
-          ]}
-          onPress={disabled ? undefined : handleSelectFromPhotos}
-          disabled={disabled}
-        >
-          <View style={styles.optionContent}>
-            <View style={[styles.optionIconContainer, { backgroundColor: colors.primary + '15' }]}>
-              <ThemedText style={styles.optionIcon}>📷</ThemedText>
-            </View>
-            <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
-              選擇相簿
-            </ThemedText>
-            <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
-              從相簿選擇 HEIC 照片
-            </ThemedText>
-          </View>
-        </Card>
+        <Animated.View style={[styles.optionWrapper, { transform: [{ scale: scaleAnimPhoto }] }]}>
+          <TouchableOpacity
+            onPress={disabled ? undefined : () => animatePress(scaleAnimPhoto, handleSelectFromPhotos)}
+            disabled={disabled}
+            activeOpacity={0.9}
+            style={[styles.optionCard, disabled && styles.disabled]}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.optionGradient}
+            >
+              <View style={styles.optionContent}>
+                <View style={styles.iconWrapper}>
+                  <LinearGradient
+                    colors={[colors.electric, colors.primary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.optionIconContainer}
+                  >
+                    <ThemedText style={styles.optionIcon}>📷</ThemedText>
+                  </LinearGradient>
+                  <View style={[styles.iconGlow, { backgroundColor: colors.electric }]} />
+                </View>
+                <View style={styles.textContainer}>
+                  <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
+                    選擇相簿
+                  </ThemedText>
+                  <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+                    從相簿選擇 HEIC 照片
+                  </ThemedText>
+                </View>
+                <View style={[styles.optionArrow, { borderLeftColor: colors.electric }]} />
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
         
-        <Card
-          style={[
-            styles.optionCard,
-            { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }
-          ]}
-          onPress={disabled ? undefined : handleSelectFiles}
-          disabled={disabled}
-        >
-          <View style={styles.optionContent}>
-            <View style={[styles.optionIconContainer, { backgroundColor: colors.secondary + '15' }]}>
-              <ThemedText style={styles.optionIcon}>📁</ThemedText>
-            </View>
-            <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
-              選擇檔案
-            </ThemedText>
-            <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
-              從檔案系統選擇
-            </ThemedText>
-          </View>
-        </Card>
+        <Animated.View style={[styles.optionWrapper, { transform: [{ scale: scaleAnimFile }] }]}>
+          <TouchableOpacity
+            onPress={disabled ? undefined : () => animatePress(scaleAnimFile, handleSelectFiles)}
+            disabled={disabled}
+            activeOpacity={0.9}
+            style={[styles.optionCard, disabled && styles.disabled]}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.optionGradient}
+            >
+              <View style={styles.optionContent}>
+                <View style={styles.iconWrapper}>
+                  <LinearGradient
+                    colors={[colors.neon, colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.optionIconContainer}
+                  >
+                    <ThemedText style={styles.optionIcon}>📁</ThemedText>
+                  </LinearGradient>
+                  <View style={[styles.iconGlow, { backgroundColor: colors.neon }]} />
+                </View>
+                <View style={styles.textContainer}>
+                  <ThemedText style={[styles.optionTitle, { color: colors.textPrimary }]}>
+                    選擇檔案
+                  </ThemedText>
+                  <ThemedText style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+                    從檔案系統選擇
+                  </ThemedText>
+                </View>
+                <View style={[styles.optionArrow, { borderLeftColor: colors.neon }]} />
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       {selectedFiles.length > 0 && (
@@ -207,40 +267,91 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   
-  optionCard: {
+  optionWrapper: {
     flex: 1,
+  },
+  
+  optionCard: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    ...Shadows.lg,
+  },
+  
+  optionGradient: {
     padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
-    ...Shadows.sm,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   
   optionContent: {
     alignItems: 'center',
+    position: 'relative',
   },
   
-  optionIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+  iconWrapper: {
+    position: 'relative',
     marginBottom: Spacing.md,
   },
   
+  optionIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.neon,
+  },
+  
+  iconGlow: {
+    position: 'absolute',
+    top: -4,
+    left: -4,
+    right: -4,
+    bottom: -4,
+    borderRadius: 36,
+    opacity: 0.3,
+    ...Shadows.glow,
+  },
+  
   optionIcon: {
-    fontSize: 24,
+    fontSize: 28,
+  },
+  
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   
   optionTitle: {
     ...Typography.labelLarge,
     textAlign: 'center',
     marginBottom: Spacing.xs,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   
   optionSubtitle: {
     ...Typography.caption,
     textAlign: 'center',
+    opacity: 0.8,
+  },
+  
+  optionArrow: {
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    width: 0,
+    height: 0,
+    borderTopWidth: 6,
+    borderBottomWidth: 6,
+    borderLeftWidth: 8,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    opacity: 0.6,
+  },
+  
+  disabled: {
+    opacity: 0.6,
   },
   
   selectedFilesCard: {
