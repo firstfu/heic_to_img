@@ -5,10 +5,8 @@ import {
   ScrollView,
   Alert,
   Platform,
-  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
 import { ThemedText } from '@/components/ThemedText';
@@ -19,9 +17,8 @@ import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { FileSelector } from '@/components/FileSelector';
-import { NewColors, Typography, BorderRadius, Spacing, Shadows } from '@/constants/NewColors';
+import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
 
-const { width: screenWidth } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
@@ -198,159 +195,145 @@ export default function HomeScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      {/* Background Gradient */}
-      <LinearGradient
-        colors={[
-          isDark ? '#1a1f3a' : '#f8f9ff',
-          isDark ? '#0f1219' : '#ffffff',
-          isDark ? '#151923' : '#f5f7ff',
-        ]}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-      
-      {/* Decorative Elements */}
-      <View style={styles.decorativeCircle1} />
-      <View style={styles.decorativeCircle2} />
-      
+    <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Main Card Container */}
-        <View style={styles.mainCard}>
-          {Platform.OS === 'ios' && (
-            <BlurView intensity={80} tint={isDark ? 'dark' : 'light'} style={styles.blurContainer}>
-              <View style={[styles.cardContent, { backgroundColor: colors.surface + '95' }]}>
-                <FileSelector
-                  selectedFiles={selectedFiles}
-                  onFilesSelected={handleFilesSelected}
-                  onClearFiles={handleClearAll}
-                  disabled={isConverting}
-                  showPhotoOption={true}
-                />
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <LinearGradient
+            colors={colors.primaryGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerGradient}
+          >
+            <View style={styles.headerContent}>
+              <View style={styles.titleContainer}>
+                <ThemedText style={[styles.title, { color: colors.textInverse }]}>
+                  HEIC 轉換工具
+                </ThemedText>
+                <View style={[styles.titleAccent, { backgroundColor: colors.neon }]} />
               </View>
-            </BlurView>
-          )}
-          {Platform.OS !== 'ios' && (
-            <View style={[styles.cardContent, { backgroundColor: colors.surface + 'F0' }]}>
-              <FileSelector
-                selectedFiles={selectedFiles}
-                onFilesSelected={handleFilesSelected}
-                onClearFiles={handleClearAll}
-                disabled={isConverting}
-                showPhotoOption={true}
-              />
+              <ThemedText style={[styles.subtitle, { color: colors.textInverse, opacity: 0.9 }]}>
+                將 HEIC 格式轉換為 JPEG 或 PNG
+              </ThemedText>
+              <View style={styles.headerDecorations}>
+                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
+                <View style={[styles.decoration, { backgroundColor: colors.neon }]} />
+                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
+              </View>
             </View>
-          )}
+          </LinearGradient>
         </View>
+        
+        {/* File Selection */}
+        <Card style={styles.mainCard} variant="glass">
+          <FileSelector
+            selectedFiles={selectedFiles}
+            onFilesSelected={handleFilesSelected}
+            onClearFiles={handleClearAll}
+            disabled={isConverting}
+            showPhotoOption={true}
+          />
+        </Card>
 
         {/* Settings Section */}
-        <View style={styles.settingsContainer}>
-          {Platform.OS === 'ios' ? (
-            <BlurView intensity={80} tint={isDark ? 'dark' : 'light'} style={styles.blurContainer}>
-              <View style={[styles.settingsContent, { backgroundColor: colors.surface + '95' }]}>
-          <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
-            轉換設定
-          </ThemedText>
+        <Card style={styles.settingsCard} variant="gradient">
+          <View style={styles.settingsHeader}>
+            <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
+              轉換設定
+            </ThemedText>
+            <LinearGradient
+              colors={[colors.electric, colors.neon]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.settingsIcon}
+            >
+              <ThemedText style={styles.settingsIconText}>⚙️</ThemedText>
+            </LinearGradient>
+          </View>
           
           <View style={styles.settingRow}>
-            <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
-              輸出格式
-            </ThemedText>
-            <View style={styles.formatButtons}>
-              <Button
-                title="JPEG"
-                variant={outputFormat === 'jpeg' ? 'primary' : 'outline'}
-                size="small"
-                onPress={() => setOutputFormat('jpeg')}
-                disabled={isConverting}
-                style={styles.formatButton}
-              />
-              <Button
-                title="PNG"
-                variant={outputFormat === 'png' ? 'primary' : 'outline'}
-                size="small"
-                onPress={() => setOutputFormat('png')}
-                disabled={isConverting}
-                style={styles.formatButton}
-              />
+            <View style={styles.settingLabelContainer}>
+              <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
+                輸出格式
+              </ThemedText>
+              <View style={[styles.settingIndicator, { backgroundColor: colors.primary }]} />
+            </View>
+            <View style={styles.formatButtonsContainer}>
+              <View style={[styles.formatButtons, { backgroundColor: isDark ? colors.surfaceElevated : colors.surfaceAccent }]}>
+                <Button
+                  title="JPEG"
+                  variant={outputFormat === 'jpeg' ? 'primary' : 'ghost'}
+                  size="small"
+                  onPress={() => setOutputFormat('jpeg')}
+                  disabled={isConverting}
+                  style={styles.formatButton}
+                />
+                <Button
+                  title="PNG"
+                  variant={outputFormat === 'png' ? 'primary' : 'ghost'}
+                  size="small"
+                  onPress={() => setOutputFormat('png')}
+                  disabled={isConverting}
+                  style={styles.formatButton}
+                />
+              </View>
             </View>
           </View>
 
           <View style={styles.settingRow}>
-            <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
-              品質: {Math.round(quality * 100)}%
-            </ThemedText>
-            <View style={styles.qualityButtons}>
-              {[0.6, 0.8, 0.9, 1.0].map((q) => (
-                <Button
-                  key={q}
-                  title={`${Math.round(q * 100)}%`}
-                  variant={quality === q ? 'primary' : 'outline'}
-                  size="small"
-                  onPress={() => setQuality(q)}
-                  disabled={isConverting}
-                  style={styles.qualityButton}
-                />
-              ))}
+            <View style={styles.settingLabelContainer}>
+              <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
+                品質設定
+              </ThemedText>
+              <View style={[styles.settingIndicator, { backgroundColor: colors.neon }]} />
+            </View>
+            <View style={styles.qualitySection}>
+              <View style={styles.qualityDisplay}>
+                <ThemedText style={[styles.qualityValue, { color: colors.primary }]}>
+                  {Math.round(quality * 100)}%
+                </ThemedText>
+                <ThemedText style={[styles.qualityDesc, { color: colors.textSecondary }]}>
+                  {quality <= 0.6 ? '網頁最佳化' : quality <= 0.8 ? '平衡品質' : quality <= 0.9 ? '高品質' : '無損品質'}
+                </ThemedText>
+              </View>
+              <View style={styles.qualityButtons}>
+                {[
+                  { value: 0.6, label: '60%', desc: '網頁' },
+                  { value: 0.8, label: '80%', desc: '平衡' },
+                  { value: 0.9, label: '90%', desc: '高品質' },
+                  { value: 1.0, label: '100%', desc: '無損' }
+                ].map((item) => (
+                  <Card 
+                    key={item.value}
+                    style={[
+                      styles.qualityCard,
+                      quality === item.value && [styles.qualityCardActive, { borderColor: colors.primary }]
+                    ]}
+                    variant={quality === item.value ? 'outlined' : 'glass'}
+                    onPress={() => setQuality(item.value)}
+                    disabled={isConverting}
+                  >
+                    <ThemedText style={[
+                      styles.qualityCardValue, 
+                      { color: quality === item.value ? colors.primary : colors.textPrimary }
+                    ]}>
+                      {item.label}
+                    </ThemedText>
+                    <ThemedText style={[
+                      styles.qualityCardDesc, 
+                      { color: quality === item.value ? colors.primary : colors.textSecondary }
+                    ]}>
+                      {item.desc}
+                    </ThemedText>
+                  </Card>
+                ))}
+              </View>
             </View>
           </View>
-              </View>
-            </BlurView>
-          ) : (
-            <Card style={[styles.settingsCard, { backgroundColor: colors.surface + 'F0' }]}>
-              <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
-                轉換設定
-              </ThemedText>
-              
-              <View style={styles.settingRow}>
-                <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
-                  輸出格式
-                </ThemedText>
-                <View style={styles.formatButtons}>
-                  <Button
-                    title="JPEG"
-                    variant={outputFormat === 'jpeg' ? 'primary' : 'outline'}
-                    size="small"
-                    onPress={() => setOutputFormat('jpeg')}
-                    disabled={isConverting}
-                    style={styles.formatButton}
-                  />
-                  <Button
-                    title="PNG"
-                    variant={outputFormat === 'png' ? 'primary' : 'outline'}
-                    size="small"
-                    onPress={() => setOutputFormat('png')}
-                    disabled={isConverting}
-                    style={styles.formatButton}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.settingRow}>
-                <ThemedText style={[styles.settingLabel, { color: colors.textPrimary }]}>
-                  品質: {Math.round(quality * 100)}%
-                </ThemedText>
-                <View style={styles.qualityButtons}>
-                  {[0.6, 0.8, 0.9, 1.0].map((q) => (
-                    <Button
-                      key={q}
-                      title={`${Math.round(q * 100)}%`}
-                      variant={quality === q ? 'primary' : 'outline'}
-                      size="small"
-                      onPress={() => setQuality(q)}
-                      disabled={isConverting}
-                      style={styles.qualityButton}
-                    />
-                  ))}
-                </View>
-              </View>
-            </Card>
-          )}
-        </View>
+        </Card>
 
 
         {/* Convert Button */}
@@ -370,15 +353,25 @@ export default function HomeScreen() {
 
         {/* Results Section */}
         {convertedFiles.length > 0 && (
-          <Card style={styles.resultsCard} variant="elevated">
+          <Card style={styles.resultsCard} variant="glass">
             <View style={styles.resultHeaderSection}>
-              <ThemedText style={[styles.resultsTitle, { color: colors.textPrimary }]}>
-                轉換完成
-              </ThemedText>
+              <View style={styles.resultHeaderContent}>
+                <LinearGradient
+                  colors={[colors.emerald, colors.neon]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.successIcon}
+                >
+                  <ThemedText style={styles.successIconText}>✅</ThemedText>
+                </LinearGradient>
+                <ThemedText style={[styles.resultsTitle, { color: colors.textPrimary }]}>
+                  轉換完成
+                </ThemedText>
+              </View>
               <StatusBadge
                 status="success"
                 text={`${convertedFiles.length} 個檔案`}
-                icon="✅"
+                icon="🎉"
               />
             </View>
             
@@ -445,181 +438,172 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  decorativeCircle1: {
-    position: 'absolute',
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-    top: -150,
-    right: -100,
-  },
-  decorativeCircle2: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    bottom: 100,
-    left: -50,
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.xxxl,
+    paddingTop: 0, // 因為沉浸式設計，從頂部開始
+    paddingBottom: Spacing.xl,
   },
   
-  // Hero Section
-  heroSection: {
-    position: 'relative',
-    alignItems: 'center',
-    paddingVertical: Spacing.xxxl,
-    marginBottom: Spacing.xl,
-  },
-  heroGradient: {
-    position: 'absolute',
-    top: 0,
-    left: -100,
-    right: -100,
-    height: 300,
-    borderRadius: BorderRadius.xl,
-  },
-  heroContent: {
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  heroIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Header Section
+  headerContainer: {
     marginBottom: Spacing.lg,
-    ...Shadows.md,
+    marginHorizontal: -Spacing.lg,
+    overflow: 'hidden',
   },
-  heroIconText: {
-    fontSize: 36,
+  headerGradient: {
+    paddingTop: Spacing.xxxl + 40, // 為狀態欄留出空間
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
+    ...Shadows.neon,
   },
-  heroTitle: {
-    ...Typography.h1,
-    textAlign: 'center',
-    marginBottom: Spacing.md,
-  },
-  heroSubtitle: {
-    ...Typography.bodyLarge,
-    textAlign: 'center',
-    paddingHorizontal: Spacing.xl,
-    lineHeight: 28,
-  },
-  
-  // Features Section
-  featuresSection: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.xl,
-    gap: Spacing.md,
-  },
-  featureCard: {
-    width: Platform.OS === 'web' && screenWidth > 768 ? '30%' : '100%',
-    minHeight: 140,
+  headerContent: {
     alignItems: 'center',
-    justifyContent: 'center',
+    position: 'relative',
   },
-  featureIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+  titleContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.md,
-  },
-  featureIcon: {
-    fontSize: 24,
-  },
-  featureTitle: {
-    ...Typography.h5,
-    textAlign: 'center',
     marginBottom: Spacing.sm,
   },
-  featureText: {
-    ...Typography.bodySmall,
+  title: {
+    ...Typography.h2,
     textAlign: 'center',
-    lineHeight: 20,
+    fontWeight: '800',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  titleAccent: {
+    width: 60,
+    height: 3,
+    borderRadius: BorderRadius.full,
+    marginTop: Spacing.xs,
+    ...Shadows.glow,
+  },
+  subtitle: {
+    ...Typography.body,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
+  },
+  headerDecorations: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  decoration: {
+    width: 8,
+    height: 8,
+    borderRadius: BorderRadius.full,
+    opacity: 0.8,
   },
   
   // Main Card
   mainCard: {
-    marginBottom: Spacing.xl,
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    ...Shadows.lg,
-  },
-  blurContainer: {
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-  },
-  cardContent: {
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.lg,
   },
   
   // Settings Section
-  settingsContainer: {
-    marginBottom: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    ...Shadows.md,
-  },
-  settingsContent: {
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-  },
   settingsCard: {
     marginBottom: Spacing.lg,
-    marginTop: Spacing.sm,
-    ...Shadows.md,
+  },
+  settingsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
   },
   settingsTitle: {
     ...Typography.h4,
-    marginBottom: Spacing.lg,
+    flex: 1,
+  },
+  settingsIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.glow,
+  },
+  settingsIconText: {
+    fontSize: 16,
   },
   settingRow: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl,
+  },
+  settingLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   settingLabel: {
     ...Typography.labelLarge,
-    marginBottom: Spacing.sm,
+    marginRight: Spacing.sm,
+  },
+  settingIndicator: {
+    width: 4,
+    height: 16,
+    borderRadius: BorderRadius.sm,
+    ...Shadows.glow,
+  },
+  formatButtonsContainer: {
+    marginTop: Spacing.sm,
   },
   formatButtons: {
     flexDirection: 'row',
     gap: Spacing.sm,
+    padding: 4,
+    borderRadius: BorderRadius.lg,
   },
   formatButton: {
     flex: 1,
   },
+  qualitySection: {
+    marginTop: Spacing.sm,
+  },
+  qualityDisplay: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+  },
+  qualityValue: {
+    ...Typography.h3,
+    fontWeight: '700',
+  },
+  qualityDesc: {
+    ...Typography.caption,
+    fontWeight: '500',
+  },
   qualityButtons: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    gap: Spacing.xs,
   },
-  qualityButton: {
+  qualityCard: {
     flex: 1,
+    minHeight: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.sm,
+  },
+  qualityCardActive: {
+    borderWidth: 2,
+    ...Shadows.glow,
+  },
+  qualityCardValue: {
+    ...Typography.labelMedium,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  qualityCardDesc: {
+    ...Typography.caption,
+    fontSize: 10,
+    textAlign: 'center',
   },
   
   // Convert Section
   convertSection: {
-    marginTop: Spacing.md,
+    marginTop: Spacing.lg,
     marginBottom: Spacing.xl,
   },
   
@@ -633,8 +617,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.lg,
   },
+  resultHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  successIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+    ...Shadows.glow,
+  },
+  successIconText: {
+    fontSize: 18,
+  },
   resultsTitle: {
     ...Typography.h4,
+    flex: 1,
   },
   resultItem: {
     marginBottom: Spacing.md,
@@ -669,38 +671,5 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-  },
-  
-  // Instructions Section
-  instructionsCard: {
-    marginBottom: Spacing.xl,
-  },
-  instructionsTitle: {
-    ...Typography.h4,
-    marginBottom: Spacing.lg,
-  },
-  instructionsList: {
-    gap: Spacing.md,
-  },
-  instructionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  stepNumberText: {
-    ...Typography.labelSmall,
-    fontWeight: '700',
-  },
-  instructionText: {
-    ...Typography.body,
-    flex: 1,
-    lineHeight: 24,
   },
 });

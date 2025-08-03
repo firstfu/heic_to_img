@@ -82,22 +82,26 @@ export function Button({
         return {
           backgroundColor: colors.secondary,
           borderWidth: 0,
+          ...Shadows.md,
         };
       case 'outline':
         return {
-          backgroundColor: 'transparent',
-          borderWidth: 2,
+          backgroundColor: isDark ? colors.surfaceGlass : 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1.5,
           borderColor: colors.primary,
+          ...Shadows.sm,
         };
       case 'ghost':
         return {
-          backgroundColor: 'transparent',
+          backgroundColor: isDark ? colors.surfaceElevated : colors.surfaceAccent,
           borderWidth: 0,
+          ...Shadows.sm,
         };
       default:
         return {
-          backgroundColor: colors.primary,
+          backgroundColor: 'transparent', // 將使用漸層
           borderWidth: 0,
+          ...Shadows.lg,
         };
     }
   };
@@ -128,7 +132,41 @@ export function Button({
     textStyle,
   ];
 
-  if (variant === 'primary' && !disabled) {
+
+  const renderButtonContent = () => (
+    <View style={styles.content}>
+      {loading ? (
+        <ActivityIndicator
+          size="small"
+          color={variant === 'outline' || variant === 'ghost' ? colors.primary : colors.textInverse}
+        />
+      ) : (
+        <>
+          {icon && iconPosition === 'left' && (
+            <View style={styles.iconLeft}>
+              {typeof icon === 'string' ? (
+                <ThemedText style={textStyles}>{icon}</ThemedText>
+              ) : (
+                icon
+              )}
+            </View>
+          )}
+          <ThemedText style={textStyles}>{title}</ThemedText>
+          {icon && iconPosition === 'right' && (
+            <View style={styles.iconRight}>
+              {typeof icon === 'string' ? (
+                <ThemedText style={textStyles}>{icon}</ThemedText>
+              ) : (
+                icon
+              )}
+            </View>
+          )}
+        </>
+      )}
+    </View>
+  );
+
+  if (variant === 'primary') {
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -139,36 +177,15 @@ export function Button({
         <LinearGradient
           colors={colors.primaryGradient}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[StyleSheet.absoluteFill, { borderRadius: getSizeStyles().borderRadius }]}
-        />
-        <View style={styles.content}>
-          {loading ? (
-            <ActivityIndicator size="small" color={colors.textInverse} />
-          ) : (
-            <>
-              {icon && iconPosition === 'left' && (
-                <View style={styles.iconLeft}>
-                  {typeof icon === 'string' ? (
-                    <ThemedText style={textStyles}>{icon}</ThemedText>
-                  ) : (
-                    icon
-                  )}
-                </View>
-              )}
-              <ThemedText style={textStyles}>{title}</ThemedText>
-              {icon && iconPosition === 'right' && (
-                <View style={styles.iconRight}>
-                  {typeof icon === 'string' ? (
-                    <ThemedText style={textStyles}>{icon}</ThemedText>
-                  ) : (
-                    icon
-                  )}
-                </View>
-              )}
-            </>
-          )}
-        </View>
+          end={{ x: 1, y: 1 }}
+          style={[
+            styles.gradientButton,
+            getSizeStyles(),
+            disabled && styles.disabled,
+          ]}
+        >
+          {renderButtonContent()}
+        </LinearGradient>
       </TouchableOpacity>
     );
   }
@@ -180,36 +197,7 @@ export function Button({
       activeOpacity={0.8}
       style={buttonStyles}
     >
-      <View style={styles.content}>
-        {loading ? (
-          <ActivityIndicator
-            size="small"
-            color={variant === 'outline' || variant === 'ghost' ? colors.primary : colors.textInverse}
-          />
-        ) : (
-          <>
-            {icon && iconPosition === 'left' && (
-              <View style={styles.iconLeft}>
-                {typeof icon === 'string' ? (
-                  <ThemedText style={textStyles}>{icon}</ThemedText>
-                ) : (
-                  icon
-                )}
-              </View>
-            )}
-            <ThemedText style={textStyles}>{title}</ThemedText>
-            {icon && iconPosition === 'right' && (
-              <View style={styles.iconRight}>
-                {typeof icon === 'string' ? (
-                  <ThemedText style={textStyles}>{icon}</ThemedText>
-                ) : (
-                  icon
-                )}
-              </View>
-            )}
-          </>
-        )}
-      </View>
+      {renderButtonContent()}
     </TouchableOpacity>
   );
 }
@@ -218,7 +206,12 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    ...Shadows.sm,
+    overflow: 'hidden', // 確保漸層不會溢出
+  },
+  gradientButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   content: {
     flexDirection: 'row',

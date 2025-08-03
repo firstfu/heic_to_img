@@ -29,34 +29,48 @@ export default function AboutScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Hero Section */}
-        <View style={styles.heroSection}>
+        <View style={styles.heroContainer}>
           <LinearGradient
-            colors={[
-              colors.primary + '20',
-              colors.secondary + '10',
-              'transparent'
-            ]}
+            colors={colors.primaryGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.heroGradient}
-          />
-          <View style={styles.heroContent}>
-            <View style={styles.heroIcon}>
-              <ThemedText style={styles.heroIconText}>🔄</ThemedText>
+          >
+            <View style={styles.heroContent}>
+              <LinearGradient
+                colors={[colors.electric, colors.neon]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.heroIcon}
+              >
+                <ThemedText style={styles.heroIconText}>🔄</ThemedText>
+              </LinearGradient>
+              <ThemedText style={[styles.heroTitle, { color: colors.textInverse }]}>
+                HEIC 轉換工具
+              </ThemedText>
+              <ThemedText style={[styles.heroSubtitle, { color: colors.textInverse, opacity: 0.9 }]}>
+                快速、安全、高品質的圖片格式轉換
+              </ThemedText>
+              <View style={styles.heroDecorations}>
+                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
+                <View style={[styles.decoration, { backgroundColor: colors.neon }]} />
+                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
+              </View>
             </View>
-            <ThemedText style={[styles.heroTitle, { color: colors.textPrimary }]}>
-              HEIC 轉換工具
-            </ThemedText>
-            <ThemedText style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-              快速、安全、高品質的圖片格式轉換
-            </ThemedText>
-          </View>
+          </LinearGradient>
         </View>
 
         {/* Features Grid */}
         <View style={styles.featuresSection}>
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
+          <Card style={styles.featureCard} variant="glass">
+            <LinearGradient
+              colors={[colors.primary, colors.electric]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.featureIconContainer}
+            >
               <ThemedText style={styles.featureIcon}>🔒</ThemedText>
-            </View>
+            </LinearGradient>
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               隱私優先
             </ThemedText>
@@ -65,10 +79,15 @@ export default function AboutScreen() {
             </ThemedText>
           </Card>
           
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
+          <Card style={styles.featureCard} variant="glass">
+            <LinearGradient
+              colors={[colors.neon, colors.emerald]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.featureIconContainer}
+            >
               <ThemedText style={styles.featureIcon}>⚡</ThemedText>
-            </View>
+            </LinearGradient>
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               批量轉換
             </ThemedText>
@@ -77,10 +96,15 @@ export default function AboutScreen() {
             </ThemedText>
           </Card>
           
-          <Card style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
+          <Card style={styles.featureCard} variant="glass">
+            <LinearGradient
+              colors={[colors.electric, colors.primary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.featureIconContainer}
+            >
               <ThemedText style={styles.featureIcon}>🎯</ThemedText>
-            </View>
+            </LinearGradient>
             <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
               品質保證
             </ThemedText>
@@ -91,7 +115,7 @@ export default function AboutScreen() {
         </View>
 
         {/* Instructions */}
-        <Card style={styles.instructionsCard}>
+        <Card style={styles.instructionsCard} variant="gradient">
           <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>
             使用說明
           </ThemedText>
@@ -103,11 +127,16 @@ export default function AboutScreen() {
               { step: '4', text: '下載轉換完成的檔案' },
             ].map((instruction, index) => (
               <View key={index} style={styles.instructionItem}>
-                <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
+                <LinearGradient
+                  colors={[colors.primary, colors.electric]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.stepNumber}
+                >
                   <ThemedText style={[styles.stepNumberText, { color: colors.textInverse }]}>
                     {instruction.step}
                   </ThemedText>
-                </View>
+                </LinearGradient>
                 <ThemedText style={[styles.instructionText, { color: colors.textSecondary }]}>
                   {instruction.text}
                 </ThemedText>
@@ -117,7 +146,7 @@ export default function AboutScreen() {
         </Card>
 
         {/* Tech Details */}
-        <Card style={styles.techCard}>
+        <Card style={styles.techCard} variant="glass">
           <ThemedText style={[styles.techTitle, { color: colors.textPrimary }]}>
             技術說明
           </ThemedText>
@@ -155,7 +184,7 @@ export default function AboutScreen() {
         </Card>
 
         {/* Privacy Policy */}
-        <Card style={styles.privacyCard}>
+        <Card style={styles.privacyCard} variant="gradient">
           <ThemedText style={[styles.privacyTitle, { color: colors.textPrimary }]}>
             隱私承諾
           </ThemedText>
@@ -166,7 +195,7 @@ export default function AboutScreen() {
         </Card>
 
         {/* About Developer */}
-        <Card style={styles.aboutCard}>
+        <Card style={styles.aboutCard} variant="glass">
           <ThemedText style={[styles.aboutTitle, { color: colors.textPrimary }]}>
             關於開發者
           </ThemedText>
@@ -203,38 +232,34 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xl,
+    paddingTop: 0, // 因為沉浸式設計，從頂部開始
     paddingBottom: Spacing.xxxl,
   },
   
   // Hero Section
-  heroSection: {
-    position: 'relative',
-    alignItems: 'center',
-    paddingVertical: Spacing.xxxl,
+  heroContainer: {
     marginBottom: Spacing.xl,
+    marginHorizontal: -Spacing.lg,
+    overflow: 'hidden',
   },
   heroGradient: {
-    position: 'absolute',
-    top: 0,
-    left: -100,
-    right: -100,
-    height: 300,
-    borderRadius: BorderRadius.xl,
+    paddingTop: Spacing.xxxl + 40, // 為狀態欄留出空間
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
+    ...Shadows.neon,
   },
   heroContent: {
     alignItems: 'center',
-    zIndex: 1,
+    position: 'relative',
   },
   heroIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
-    ...Shadows.md,
+    ...Shadows.glow,
   },
   heroIconText: {
     fontSize: 36,
@@ -242,13 +267,29 @@ const styles = StyleSheet.create({
   heroTitle: {
     ...Typography.h1,
     textAlign: 'center',
+    fontWeight: '800',
     marginBottom: Spacing.md,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   heroSubtitle: {
     ...Typography.bodyLarge,
     textAlign: 'center',
     paddingHorizontal: Spacing.xl,
     lineHeight: 28,
+    marginBottom: Spacing.md,
+  },
+  heroDecorations: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  decoration: {
+    width: 8,
+    height: 8,
+    borderRadius: BorderRadius.full,
+    opacity: 0.8,
   },
   
   // Features Section
@@ -266,13 +307,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   featureIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
+    ...Shadows.glow,
   },
   featureIcon: {
     fontSize: 24,
@@ -304,12 +345,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: Spacing.md,
+    ...Shadows.glow,
   },
   stepNumberText: {
     ...Typography.labelSmall,

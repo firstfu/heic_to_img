@@ -7,7 +7,11 @@
       "Bash(npm run lint)",
       "Bash(pkill:*)",
       "Bash(mkdir:*)",
-      "Bash(npx expo install:*)"
+      "Bash(npx expo install:*)",
+      "Bash(find:*)",
+      "Bash(rm:*)",
+      "mcp__playwright__browser_navigate",
+      "Bash(lsof:*)"
     ],
     "deny": []
   }

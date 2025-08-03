@@ -5,6 +5,7 @@ import {
   ViewStyle,
   TouchableOpacity,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { NewColors, BorderRadius, Shadows, Spacing } from '@/constants/NewColors';
 
@@ -12,7 +13,7 @@ interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   padding?: 'none' | 'small' | 'medium' | 'large';
-  variant?: 'default' | 'elevated' | 'outlined';
+  variant?: 'default' | 'elevated' | 'outlined' | 'glass' | 'gradient';
   onPress?: () => void;
   disabled?: boolean;
 }
@@ -46,18 +47,36 @@ export function Card({
       case 'elevated':
         return {
           backgroundColor: colors.surfaceElevated,
-          ...Shadows.md,
+          ...Shadows.xl,
+          borderWidth: 1,
+          borderColor: colors.borderSubtle,
         };
       case 'outlined':
         return {
           backgroundColor: colors.surface,
+          borderWidth: 1.5,
+          borderColor: colors.primary,
+          ...Shadows.md,
+        };
+      case 'glass':
+        return {
+          backgroundColor: colors.surfaceGlass,
           borderWidth: 1,
-          borderColor: colors.border,
+          borderColor: colors.surfaceGlassBorder,
+          ...Shadows.glass,
+        };
+      case 'gradient':
+        return {
+          backgroundColor: 'transparent',
+          ...Shadows.lg,
+          borderWidth: 0,
         };
       default:
         return {
           backgroundColor: colors.surface,
-          ...Shadows.sm,
+          ...Shadows.lg,
+          borderWidth: 1,
+          borderColor: colors.borderSubtle,
         };
     }
   };
@@ -70,6 +89,29 @@ export function Card({
     style,
   ];
 
+  const renderCardContent = () => {
+    if (variant === 'gradient') {
+      return (
+        <LinearGradient
+          colors={isDark 
+            ? [colors.surfaceElevated, colors.surfaceAccent] 
+            : [colors.surfaceAccent, colors.surfaceElevated]
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[
+            styles.gradientCard,
+            getPaddingStyles(),
+            disabled && styles.disabled,
+          ]}
+        >
+          {children}
+        </LinearGradient>
+      );
+    }
+    return children;
+  };
+
   if (onPress) {
     return (
       <TouchableOpacity
@@ -78,17 +120,30 @@ export function Card({
         activeOpacity={0.95}
         style={cardStyles}
       >
-        {children}
+        {renderCardContent()}
       </TouchableOpacity>
     );
   }
 
-  return <View style={cardStyles}>{children}</View>;
+  if (variant === 'gradient') {
+    return (
+      <View style={[cardStyles, { padding: 0 }]}>
+        {renderCardContent()}
+      </View>
+    );
+  }
+
+  return <View style={cardStyles}>{renderCardContent()}</View>;
 }
 
 const styles = StyleSheet.create({
   card: {
     borderRadius: BorderRadius.lg,
+    overflow: 'hidden', // 確保漸層和內容不會溢出圓角
+  },
+  gradientCard: {
+    borderRadius: BorderRadius.lg,
+    width: '100%',
   },
   disabled: {
     opacity: 0.6,
