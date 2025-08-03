@@ -837,7 +837,7 @@ const styles = StyleSheet.create({
   },
   qualityButtons: {
     flexDirection: 'row',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
   },
   qualityCard: {
     flex: 1,
