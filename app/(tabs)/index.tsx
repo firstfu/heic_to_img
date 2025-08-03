@@ -285,7 +285,7 @@ export default function HomeScreen() {
         </View>
         
         {/* File Selection */}
-        <Card style={styles.mainCard} variant="glass">
+        <View style={[styles.mainCard, { backgroundColor: 'transparent' }]}>
           <FileSelector
             selectedFiles={selectedFiles}
             onFilesSelected={handleFilesSelected}
@@ -293,7 +293,7 @@ export default function HomeScreen() {
             disabled={isConverting}
             showPhotoOption={true}
           />
-        </Card>
+        </View>
 
         {/* Settings Section */}
         <Animated.View style={{

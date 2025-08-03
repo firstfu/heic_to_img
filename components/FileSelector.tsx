@@ -106,7 +106,7 @@ export function FileSelector({
         <Card
           style={[
             styles.optionCard,
-            { backgroundColor: colors.surface }
+            { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }
           ]}
           onPress={disabled ? undefined : handleSelectFromPhotos}
           disabled={disabled}
@@ -127,7 +127,7 @@ export function FileSelector({
         <Card
           style={[
             styles.optionCard,
-            { backgroundColor: colors.surface }
+            { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }
           ]}
           onPress={disabled ? undefined : handleSelectFiles}
           disabled={disabled}
