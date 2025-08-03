@@ -308,14 +308,6 @@ export default function HomeScreen() {
             <ThemedText style={[styles.settingsTitle, { color: colors.textPrimary }]}>
               轉換設定
             </ThemedText>
-            <LinearGradient
-              colors={[colors.electric, colors.neon]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.settingsIcon}
-            >
-              <ThemedText style={styles.settingsIconText}>⚙️</ThemedText>
-            </LinearGradient>
           </View>
           
           <View style={styles.settingRow}>
