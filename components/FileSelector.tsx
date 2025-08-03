@@ -148,7 +148,11 @@ export function FileSelector({
                     end={{ x: 1, y: 1 }}
                     style={styles.optionIconContainer}
                   >
-                    <ThemedText style={styles.optionIcon}>📷</ThemedText>
+                    <View style={styles.cameraIcon}>
+                      <View style={[styles.cameraBody, { backgroundColor: colors.textInverse }]} />
+                      <View style={[styles.cameraLens, { backgroundColor: 'transparent', borderColor: colors.textInverse }]} />
+                      <View style={[styles.cameraFlash, { backgroundColor: colors.textInverse }]} />
+                    </View>
                   </LinearGradient>
                   <View style={[styles.iconGlow, { backgroundColor: colors.electric }]} />
                 </View>
@@ -186,7 +190,11 @@ export function FileSelector({
                     end={{ x: 1, y: 1 }}
                     style={styles.optionIconContainer}
                   >
-                    <ThemedText style={styles.optionIcon}>📁</ThemedText>
+                    <View style={styles.folderIcon}>
+                      <View style={[styles.folderBack, { backgroundColor: colors.textInverse }]} />
+                      <View style={[styles.folderFront, { backgroundColor: colors.textInverse }]} />
+                      <View style={[styles.folderTab, { backgroundColor: colors.textInverse }]} />
+                    </View>
                   </LinearGradient>
                   <View style={[styles.iconGlow, { backgroundColor: colors.neon }]} />
                 </View>
@@ -314,6 +322,73 @@ const styles = StyleSheet.create({
   
   optionIcon: {
     fontSize: 28,
+  },
+  
+  // Camera Icon Styles
+  cameraIcon: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  cameraBody: {
+    width: 24,
+    height: 18,
+    borderRadius: 4,
+    position: 'absolute',
+  },
+  
+  cameraLens: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    position: 'absolute',
+  },
+  
+  cameraFlash: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    position: 'absolute',
+    top: -4,
+    right: 2,
+  },
+  
+  // Folder Icon Styles
+  folderIcon: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  folderBack: {
+    width: 26,
+    height: 20,
+    borderRadius: 3,
+    position: 'absolute',
+    bottom: 4,
+  },
+  
+  folderFront: {
+    width: 24,
+    height: 18,
+    borderRadius: 3,
+    position: 'absolute',
+    bottom: 2,
+    left: 1,
+  },
+  
+  folderTab: {
+    width: 10,
+    height: 6,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
+    position: 'absolute',
+    top: 2,
+    left: 4,
   },
   
   textContainer: {
