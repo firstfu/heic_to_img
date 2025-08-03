@@ -273,11 +273,6 @@ export default function HomeScreen() {
               <ThemedText style={[styles.subtitle, { color: colors.textInverse, opacity: 0.9 }]}>
                 將 HEIC 格式轉換為 JPEG 或 PNG
               </ThemedText>
-              <View style={styles.headerDecorations}>
-                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
-                <View style={[styles.decoration, { backgroundColor: colors.neon }]} />
-                <View style={[styles.decoration, { backgroundColor: colors.electric }]} />
-              </View>
             </View>
           </LinearGradient>
         </View>
@@ -654,7 +649,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   title: {
     ...Typography.h2,
@@ -675,17 +670,6 @@ const styles = StyleSheet.create({
     ...Typography.body,
     textAlign: 'center',
     marginBottom: Spacing.md,
-  },
-  headerDecorations: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  decoration: {
-    width: 8,
-    height: 8,
-    borderRadius: BorderRadius.full,
-    opacity: 0.8,
   },
   
   // Main Card
