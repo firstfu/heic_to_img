@@ -7,6 +7,7 @@ import {
   Platform,
   Animated,
 } from 'react-native';
+import { Stack } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
@@ -251,6 +252,18 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Stack.Screen 
+        options={{
+          title: '',
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTintColor: colors.textInverse,
+          headerShadowVisible: false,
+          headerTransparent: true,
+        }}
+      />
+      
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
