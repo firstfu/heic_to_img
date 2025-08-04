@@ -1,3 +1,19 @@
+/**
+ * 圖示符號元件 (IconSymbol) - Android/Web 版本
+ * 
+ * 功能說明：
+ * - 提供跨平台的圖示顯示解決方案
+ * - 在 Android 和 Web 平台使用 Material Icons 作為 SF Symbols 的替代
+ * - 支援圖示映射和樣式自定義
+ * - 確保不同平台的視覺一致性
+ * 
+ * 技術特色：
+ * - SF Symbols 到 Material Icons 的映射系統
+ * - 支援顏色、大小和權重自定義
+ * - 跨平台相容性處理
+ * - TypeScript 類型安全保障
+ */
+
 // Fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
