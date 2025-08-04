@@ -1,3 +1,30 @@
+/**
+ * 標籤導航佈局元件 (Tab Layout)
+ * 
+ * 功能說明：
+ * - 負責配置應用程式的底部標籤欄導航結構
+ * - 管理兩個主要標籤頁：轉換工具和應用資訊
+ * - 整合觸覺反饋和視覺主題系統
+ * - 動態調整狀態列樣式以配合主題切換
+ * 
+ * 導航結構：
+ * - index (轉換工具): HEIC 檔案轉換的主要功能頁面
+ * - about (應用資訊): 顯示應用程式相關資訊和設定
+ * 
+ * 設計特色：
+ * - 響應式主題色彩系統 (明暗模式支援)
+ * - SF Symbols 圖示整合 (iOS 風格)
+ * - 觸覺反饋標籤按鈕體驗
+ * - 自定義標籤欄背景效果
+ * - 跨平台狀態列樣式管理
+ * 
+ * 技術實作：
+ * - Expo Router Tabs 導航系統
+ * - 動態主題色彩配置
+ * - Platform-specific 狀態列控制
+ * - 自定義標籤欄組件整合
+ */
+
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform, StatusBar } from "react-native";
