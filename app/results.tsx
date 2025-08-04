@@ -359,11 +359,12 @@ const styles = StyleSheet.create({
   // 操作按鈕
   actionButtons: {
     flexDirection: "row",
-    gap: Spacing.sm,
-    justifyContent: "space-between",
+    gap: 4, // 使用更小的固定間距
+    justifyContent: "flex-end", // 移到右側
+    marginLeft: 'auto', // 確保容器本身靠右
   },
   actionButton: {
-    width: 100, // 固定寬度確保完全一致
+    width: 100, // 恢復原始寬度
   },
 
   // 返回區域
