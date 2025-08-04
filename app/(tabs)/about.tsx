@@ -4,14 +4,12 @@
  * 功能說明：
  * - 展示應用程式的詳細資訊和功能介紹
  * - 提供完整的使用說明和技術規格
- * - 強調隱私保護和安全性承諾
  * - 包含開發者資訊和版本詳情
  *
  * 頁面結構：
  * - 功能特色展示: 批量轉換、品質保證
  * - 使用說明指南: 四步驟操作流程
  * - 技術規格詳情: 支援格式、品質設定、檔案限制
- * - 隱私政策聲明: 離線處理承諾
  * - 開發者介紹: 開源專案資訊和 GitHub 連結
  *
  * 設計特色：
@@ -29,7 +27,6 @@
  * - 模組化卡片組件架構
  *
  * 內容亮點：
- * - 隱私承諾: 完全離線處理，無資料上傳
  * - 技術透明: 詳細說明支援格式和品質選項
  * - 開源友善: 鼓勵社群參與和貢獻
  * - 版本資訊: 清楚標示當前版本號
@@ -137,13 +134,6 @@ export default function AboutScreen() {
           </View>
         </Card>
 
-        {/* Privacy Policy */}
-        <Card style={styles.privacyCard} variant="gradient">
-          <ThemedText style={[styles.privacyTitle, { color: colors.textPrimary }]}>隱私承諾</ThemedText>
-          <ThemedText style={[styles.privacyText, { color: colors.textTertiary }]}>
-            我們重視您的隱私。所有圖片轉換都在您的裝置上進行，不會上傳到任何伺服器。 您的檔案永遠不會離開您的裝置。
-          </ThemedText>
-        </Card>
 
         {/* Version Info */}
         <View style={styles.versionSection}>
@@ -255,18 +245,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // Privacy
-  privacyCard: {
-    marginBottom: Spacing.lg,
-  },
-  privacyTitle: {
-    ...Typography.h5,
-    marginBottom: Spacing.sm,
-  },
-  privacyText: {
-    ...Typography.bodySmall,
-    lineHeight: 20,
-  },
 
   // About
   aboutCard: {
