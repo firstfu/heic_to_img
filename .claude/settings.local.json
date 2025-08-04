@@ -14,7 +14,10 @@
       "Bash(lsof:*)",
       "mcp__Context7__resolve-library-id",
       "mcp__Context7__get-library-docs",
-      "Bash(uv init:*)"
+      "Bash(uv init:*)",
+      "Bash(touch:*)",
+      "Bash(uv sync:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "additionalDirectories": [
