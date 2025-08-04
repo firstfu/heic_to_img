@@ -195,14 +195,14 @@ export class ApiService {
     const url = getApiUrl(API_ENDPOINTS.CONVERT);
     const formData = this.createFormData(request);
     
-    const response = await this.makeRequestWithRetry<ConversionResponse>(url, {
+    const response = await this.makeRequestWithRetry<ConversionResponse | ApiErrorResponse>(url, {
       method: 'POST',
       body: formData,
       ...options,
     });
     
     if (!isSuccessResponse(response)) {
-      throw new Error(response.message || ERROR_MESSAGES.SERVER_ERROR);
+      throw new Error((response as ApiErrorResponse).message || ERROR_MESSAGES.SERVER_ERROR);
     }
     
     return response;

@@ -80,7 +80,7 @@ export const getApiUrl = (endpoint: string): string => {
  */
 export const isSupportedFormat = (filename: string): boolean => {
   const extension = filename.toLowerCase().split('.').pop();
-  return REQUEST_CONFIG.SUPPORTED_FORMATS.includes(extension || '');
+  return REQUEST_CONFIG.SUPPORTED_FORMATS.includes(extension as any);
 };
 
 /**
