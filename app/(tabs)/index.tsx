@@ -7,18 +7,14 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import Slider from '@react-native-community/slider';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Sharing from 'expo-sharing';
-import * as MediaLibrary from 'expo-media-library';
 import { CustomHeader } from '@/components/ui/CustomHeader';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
 import { FileSelector } from '@/components/FileSelector';
 import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
@@ -27,11 +23,11 @@ import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constan
 export default function HomeScreen() {
   const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
   const [isConverting, setIsConverting] = useState(false);
-  const [convertedFiles, setConvertedFiles] = useState<any[]>([]);
   const [conversionProgress, setConversionProgress] = useState<string>('');
   const [quality, setQuality] = useState<number>(0.9);
   const [outputFormat, setOutputFormat] = useState<'jpeg' | 'png'>('jpeg');
 
+  const router = useRouter();
   const isDark = useThemeColor({}, 'background') === '#151718';
   const colors = isDark ? NewColors.dark : NewColors.light;
   const [progressValue, setProgressValue] = useState(0);
@@ -125,64 +121,10 @@ export default function HomeScreen() {
 
   const handleClearAll = () => {
     setSelectedFiles([]);
-    setConvertedFiles([]);
     setConversionProgress('');
     setProgressValue(0);
   };
 
-  const handleShare = async (fileUri: string, fileName: string) => {
-    try {
-      if (Platform.OS === 'web') {
-        // 網頁版本使用下載
-        const link = document.createElement('a');
-        link.href = fileUri;
-        link.download = fileName;
-        link.click();
-      } else {
-        // 原生平台使用分享
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          await Sharing.shareAsync(fileUri, {
-            mimeType: outputFormat === 'jpeg' ? 'image/jpeg' : 'image/png',
-            dialogTitle: '分享圖片',
-          });
-        } else {
-          Alert.alert('無法分享', '此設備不支援分享功能');
-        }
-      }
-    } catch (error) {
-      console.error('分享失敗:', error);
-      Alert.alert('錯誤', '分享檔案時發生錯誤');
-    }
-  };
-
-  const handleSaveToGallery = async (fileUri: string, fileName: string) => {
-    try {
-      if (Platform.OS === 'web') {
-        // 網頁版本使用下載
-        const link = document.createElement('a');
-        link.href = fileUri;
-        link.download = fileName;
-        link.click();
-        Alert.alert('成功', '檔案已下載');
-      } else {
-        // 請求權限
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('權限不足', '需要相簿權限才能儲存圖片');
-          return;
-        }
-
-        // 儲存到相簿
-        const asset = await MediaLibrary.createAssetAsync(fileUri);
-        await MediaLibrary.createAlbumAsync('HEIC轉換', asset, false);
-        Alert.alert('成功', '圖片已儲存到相簿');
-      }
-    } catch (error) {
-      console.error('儲存失敗:', error);
-      Alert.alert('錯誤', '儲存檔案時發生錯誤');
-    }
-  };
 
   const handleConvert = async () => {
     if (selectedFiles.length === 0) {
@@ -191,7 +133,6 @@ export default function HomeScreen() {
     }
 
     setIsConverting(true);
-    setConvertedFiles([]);
     const converted: any[] = [];
 
     try {
@@ -205,11 +146,14 @@ export default function HomeScreen() {
         
         if (convertedUri) {
           const extension = outputFormat === 'jpeg' ? 'jpg' : 'png';
+          // 計算轉換後的檔案大小（模擬）
+          const estimatedNewSize = file.size * (outputFormat === 'png' ? quality * 1.5 : quality * 0.8);
           const convertedFile = {
             name: file.name.replace(/\.(heic|heif)$/i, `.${extension}`),
             originalName: file.name,
             uri: convertedUri,
-            size: file.size,
+            size: Math.round(estimatedNewSize),
+            originalSize: file.size,
             convertedAt: new Date().toISOString(),
             quality: quality,
             format: outputFormat,
@@ -219,27 +163,17 @@ export default function HomeScreen() {
           console.error(`轉換失敗: ${file.name}`);
         }
       }
-
-      setConvertedFiles(converted);
       
-      if (converted.length === selectedFiles.length) {
-        Alert.alert(
-          '轉換完成',
-          `成功轉換 ${converted.length} 個檔案！`,
-          [
-            {
-              text: '確定',
-              onPress: () => {
-                // 可以在這裡添加下載或分享功能
-              }
-            }
-          ]
-        );
+      if (converted.length > 0) {
+        // 轉換完成後跳轉到結果頁面
+        router.push({
+          pathname: '/results',
+          params: {
+            files: JSON.stringify(converted)
+          }
+        });
       } else {
-        Alert.alert(
-          '部分轉換失敗',
-          `成功轉換 ${converted.length}/${selectedFiles.length} 個檔案`
-        );
+        Alert.alert('轉換失敗', '沒有檔案成功轉換，請重試');
       }
     } catch (error) {
       console.error('轉換過程中發生錯誤:', error);
@@ -534,75 +468,6 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Results Section */}
-        {convertedFiles.length > 0 && (
-          <Card style={styles.resultsCard} variant="glass">
-            <View style={styles.resultHeaderSection}>
-              <View style={styles.resultHeaderContent}>
-                <LinearGradient
-                  colors={[colors.emerald, colors.neon]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.successIcon}
-                >
-                  <ThemedText style={styles.successIconText}>✅</ThemedText>
-                </LinearGradient>
-                <ThemedText style={[styles.resultsTitle, { color: colors.textPrimary }]}>
-                  轉換完成
-                </ThemedText>
-              </View>
-              <StatusBadge
-                status="success"
-                text={`${convertedFiles.length} 個檔案`}
-                icon="🎉"
-              />
-            </View>
-            
-            {convertedFiles.map((file, index) => (
-              <Card key={index} style={styles.resultItem} variant="outlined">
-                <View style={styles.resultHeader}>
-                  <ThemedText style={[styles.resultFileName, { color: colors.textPrimary }]}>
-                    {file.name}
-                  </ThemedText>
-                  <StatusBadge
-                    status="success"
-                    text={file.format?.toUpperCase() || 'JPEG'}
-                    size="small"
-                  />
-                </View>
-                <ThemedText style={[styles.resultOriginalName, { color: colors.textTertiary }]}>
-                  來源: {file.originalName}
-                </ThemedText>
-                <View style={styles.resultMeta}>
-                  <ThemedText style={[styles.resultMetaText, { color: colors.textSecondary }]}>
-                    品質: {Math.round((file.quality || 0.9) * 100)}%
-                  </ThemedText>
-                  <ThemedText style={[styles.resultMetaText, { color: colors.textSecondary }]}>
-                    轉換時間: {new Date(file.convertedAt).toLocaleTimeString()}
-                  </ThemedText>
-                </View>
-                <View style={styles.actionButtons}>
-                  <Button
-                    title={Platform.OS === 'web' ? '下載' : '儲存'}
-                    variant="primary"
-                    size="small"
-                    icon="💾"
-                    onPress={() => handleSaveToGallery(file.uri, file.name)}
-                    style={styles.actionButton}
-                  />
-                  <Button
-                    title="分享"
-                    variant="outline"
-                    size="small"
-                    icon="📤"
-                    onPress={() => handleShare(file.uri, file.name)}
-                    style={styles.actionButton}
-                  />
-                </View>
-              </Card>
-            ))}
-          </Card>
-        )}
 
 
       </ScrollView>
@@ -849,71 +714,5 @@ const styles = StyleSheet.create({
   convertSection: {
     marginTop: Spacing.sm,
     marginBottom: Spacing.lg,
-  },
-  
-  // Results Section
-  resultsCard: {
-    marginBottom: Spacing.xl,
-  },
-  resultHeaderSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  resultHeaderContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  successIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: BorderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.md,
-    ...Shadows.glow,
-  },
-  successIconText: {
-    fontSize: 18,
-  },
-  resultsTitle: {
-    ...Typography.h4,
-    flex: 1,
-  },
-  resultItem: {
-    marginBottom: Spacing.md,
-  },
-  resultHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  resultFileName: {
-    ...Typography.labelLarge,
-    flex: 1,
-    marginRight: Spacing.md,
-  },
-  resultOriginalName: {
-    ...Typography.caption,
-    marginBottom: Spacing.sm,
-  },
-  resultMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.sm,
-  },
-  resultMetaText: {
-    ...Typography.caption,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    marginTop: Spacing.md,
-  },
-  actionButton: {
-    flex: 1,
   },
 });
