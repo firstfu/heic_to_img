@@ -1,3 +1,28 @@
+/**
+ * 自定義標題元件 (CustomHeader)
+ * 
+ * 功能說明：
+ * - 為導航欄提供標題和副標題的組合顯示
+ * - 支援主題化文字顏色和響應式設計
+ * - 適用於需要雙行標題資訊的頁面
+ * - 整合應用程式的設計系統和文字規範
+ * 
+ * 視覺特色：
+ * - 主標題使用較大字體突出重點
+ * - 副標題使用較小字體提供補充資訊
+ * - 自動適應明暗主題的文字顏色
+ * - 副標題具備透明度效果增加層次感
+ * 
+ * 使用場景：
+ * - 導航欄標題區域
+ * - 頁面頂部標題展示
+ * - 需要說明文字的標題組合
+ * 
+ * Props 說明：
+ * - title: 主標題文字 (必填)
+ * - subtitle: 副標題文字 (可選)
+ */
+
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';

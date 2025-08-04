@@ -1,3 +1,32 @@
+/**
+ * 狀態徽章元件 (StatusBadge)
+ * 
+ * 功能說明：
+ * - 提供多種狀態的彩色標籤顯示
+ * - 支援不同尺寸和圖示組合
+ * - 整合主題系統和狀態顏色管理
+ * - 適用於狀態標示和分類標籤
+ * 
+ * 狀態類型：
+ * - success: 成功狀態 (綠色)
+ * - warning: 警告狀態 (橙色)
+ * - error: 錯誤狀態 (紅色)
+ * - info: 資訊狀態 (藍色)
+ * - neutral: 中性狀態 (灰色)
+ * 
+ * 尺寸選項：
+ * - small: 小尺寸徽章
+ * - medium: 中等尺寸 (預設)
+ * - large: 大尺寸徽章
+ * 
+ * Props 說明：
+ * - status: 狀態類型 (必填)
+ * - text: 顯示文字 (必填)
+ * - size: 徽章尺寸
+ * - style: 自定義樣式
+ * - icon: 圖示字串 (emoji)
+ */
+
 import React from 'react';
 import {
   View,

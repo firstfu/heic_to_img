@@ -1,33 +1,33 @@
 /**
  * 應用資訊頁面 (AboutScreen)
- * 
+ *
  * 功能說明：
  * - 展示應用程式的詳細資訊和功能介紹
  * - 提供完整的使用說明和技術規格
  * - 強調隱私保護和安全性承諾
  * - 包含開發者資訊和版本詳情
- * 
+ *
  * 頁面結構：
- * - 功能特色展示: 隱私優先、批量轉換、品質保證
+ * - 功能特色展示: 批量轉換、品質保證
  * - 使用說明指南: 四步驟操作流程
  * - 技術規格詳情: 支援格式、品質設定、檔案限制
  * - 隱私政策聲明: 離線處理承諾
  * - 開發者介紹: 開源專案資訊和 GitHub 連結
- * 
+ *
  * 設計特色：
  * - 現代化卡片佈局，增強視覺層次
  * - 漸層背景圖示，提升美觀度
  * - 響應式主題支援 (明暗模式)
  * - 分步驟指南，清晰易懂
  * - 互動式按鈕和連結整合
- * 
+ *
  * 技術實作：
  * - LinearGradient 漸層效果
  * - 動態主題色彩系統
  * - 外部連結處理 (Linking API)
  * - 跨平台條件渲染
  * - 模組化卡片組件架構
- * 
+ *
  * 內容亮點：
  * - 隱私承諾: 完全離線處理，無資料上傳
  * - 技術透明: 詳細說明支援格式和品質選項
@@ -35,25 +35,18 @@
  * - 版本資訊: 清楚標示當前版本號
  */
 
-import React from 'react';
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Linking,
-  Platform,
-} from 'react-native';
-import { Stack } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { NewColors, Typography, BorderRadius, Spacing, Shadows } from '@/constants/NewColors';
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Card } from "@/components/ui/Card";
+import { NewColors, Shadows, Spacing, Typography } from "@/constants/NewColors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { LinearGradient } from "expo-linear-gradient";
+import { Stack } from "expo-router";
+import React from "react";
+import { Linking, ScrollView, StyleSheet, View } from "react-native";
 
 export default function AboutScreen() {
-  const isDark = useThemeColor({}, 'background') === '#151718';
+  const isDark = useThemeColor({}, "background") === "#151718";
   const colors = isDark ? NewColors.dark : NewColors.light;
 
   const handleOpenLink = (url: string) => {
@@ -62,62 +55,32 @@ export default function AboutScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
-          title: '應用資訊',
+          title: "應用資訊",
           headerStyle: {
             backgroundColor: colors.primary,
           },
           headerTintColor: colors.textInverse,
           headerTitleStyle: {
-            fontWeight: '600',
+            fontWeight: "600",
             fontSize: 18,
           },
           headerShadowVisible: false,
         }}
       />
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
 
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Features Grid */}
         <View style={styles.featuresSection}>
           <Card style={styles.featureCard} variant="glass">
-            <LinearGradient
-              colors={[colors.primary, colors.electric] as [string, string, ...string[]]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.featureIconContainer}
-            >
-              <ThemedText style={styles.featureIcon}>🔒</ThemedText>
-            </LinearGradient>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              隱私優先
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
-              完全離線處理，保護您的隱私
-            </ThemedText>
-          </Card>
-          
-          <Card style={styles.featureCard} variant="glass">
-            <LinearGradient
-              colors={[colors.neon, colors.emerald]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.featureIconContainer}
-            >
+            <LinearGradient colors={[colors.neon, colors.emerald]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.featureIconContainer}>
               <ThemedText style={styles.featureIcon}>⚡</ThemedText>
             </LinearGradient>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              批量轉換
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
-              支援多檔案同時轉換
-            </ThemedText>
+            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>批量轉換</ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>支援多檔案同時轉換</ThemedText>
           </Card>
-          
+
           <Card style={styles.featureCard} variant="glass">
             <LinearGradient
               colors={[colors.electric, colors.primary] as [string, string, ...string[]]}
@@ -127,41 +90,26 @@ export default function AboutScreen() {
             >
               <ThemedText style={styles.featureIcon}>🎯</ThemedText>
             </LinearGradient>
-            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>
-              品質保證
-            </ThemedText>
-            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>
-              保留原始品質與 EXIF 資料
-            </ThemedText>
+            <ThemedText style={[styles.featureTitle, { color: colors.textPrimary }]}>品質保證</ThemedText>
+            <ThemedText style={[styles.featureText, { color: colors.textTertiary }]}>保留原始品質與 EXIF 資料</ThemedText>
           </Card>
         </View>
 
         {/* Instructions */}
         <Card style={styles.instructionsCard} variant="gradient">
-          <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>
-            使用說明
-          </ThemedText>
+          <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>使用說明</ThemedText>
           <View style={styles.instructionsList}>
             {[
-              { step: '1', text: '拖拽或點擊選擇 HEIC 檔案' },
-              { step: '2', text: '調整轉換品質和格式設定' },
-              { step: '3', text: '點擊開始轉換執行處理' },
-              { step: '4', text: '下載轉換完成的檔案' },
+              { step: "1", text: "拖拽或點擊選擇 HEIC 檔案" },
+              { step: "2", text: "調整轉換品質和格式設定" },
+              { step: "3", text: "點擊開始轉換執行處理" },
+              { step: "4", text: "下載轉換完成的檔案" },
             ].map((instruction, index) => (
               <View key={index} style={styles.instructionItem}>
-                <LinearGradient
-                  colors={[colors.primary, colors.electric] as [string, string, ...string[]]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.stepNumber}
-                >
-                  <ThemedText style={[styles.stepNumberText, { color: colors.textInverse }]}>
-                    {instruction.step}
-                  </ThemedText>
+                <LinearGradient colors={[colors.primary, colors.electric] as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.stepNumber}>
+                  <ThemedText style={[styles.stepNumberText, { color: colors.textInverse }]}>{instruction.step}</ThemedText>
                 </LinearGradient>
-                <ThemedText style={[styles.instructionText, { color: colors.textTertiary }]}>
-                  {instruction.text}
-                </ThemedText>
+                <ThemedText style={[styles.instructionText, { color: colors.textTertiary }]}>{instruction.text}</ThemedText>
               </View>
             ))}
           </View>
@@ -169,79 +117,37 @@ export default function AboutScreen() {
 
         {/* Tech Details */}
         <Card style={styles.techCard} variant="glass">
-          <ThemedText style={[styles.techTitle, { color: colors.textPrimary }]}>
-            技術說明
-          </ThemedText>
-          
+          <ThemedText style={[styles.techTitle, { color: colors.textPrimary }]}>技術說明</ThemedText>
+
           <View style={styles.techSection}>
-            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
-              支援的格式
-            </ThemedText>
+            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>支援的格式</ThemedText>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>• 輸入格式：HEIC, HEIF{"\n"}• 輸出格式：JPEG, PNG</ThemedText>
+          </View>
+
+          <View style={styles.techSection}>
+            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>品質設定</ThemedText>
             <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
-              • 輸入格式：HEIC, HEIF{'\n'}
-              • 輸出格式：JPEG, PNG
+              • 60% - 適合網頁使用{"\n"}• 80% - 平衡品質與檔案大小{"\n"}• 90% - 高品質輸出{"\n"}• 100% - 無損品質
             </ThemedText>
           </View>
 
           <View style={styles.techSection}>
-            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
-              品質設定
-            </ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
-              • 60% - 適合網頁使用{'\n'}
-              • 80% - 平衡品質與檔案大小{'\n'}
-              • 90% - 高品質輸出{'\n'}
-              • 100% - 無損品質
-            </ThemedText>
-          </View>
-
-          <View style={styles.techSection}>
-            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>
-              檔案大小限制
-            </ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
-              最大 50MB，支援批量選擇
-            </ThemedText>
+            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>檔案大小限制</ThemedText>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>最大 50MB，支援批量選擇</ThemedText>
           </View>
         </Card>
 
         {/* Privacy Policy */}
         <Card style={styles.privacyCard} variant="gradient">
-          <ThemedText style={[styles.privacyTitle, { color: colors.textPrimary }]}>
-            隱私承諾
-          </ThemedText>
+          <ThemedText style={[styles.privacyTitle, { color: colors.textPrimary }]}>隱私承諾</ThemedText>
           <ThemedText style={[styles.privacyText, { color: colors.textTertiary }]}>
-            我們重視您的隱私。所有圖片轉換都在您的裝置上進行，不會上傳到任何伺服器。
-            您的檔案永遠不會離開您的裝置。
+            我們重視您的隱私。所有圖片轉換都在您的裝置上進行，不會上傳到任何伺服器。 您的檔案永遠不會離開您的裝置。
           </ThemedText>
-        </Card>
-
-        {/* About Developer */}
-        <Card style={styles.aboutCard} variant="glass">
-          <ThemedText style={[styles.aboutTitle, { color: colors.textPrimary }]}>
-            關於開發者
-          </ThemedText>
-          <ThemedText style={[styles.aboutText, { color: colors.textTertiary }]}>
-            這個應用程式是使用 React Native 和 Expo 開發的開源專案。
-            歡迎貢獻程式碼或提出建議！
-          </ThemedText>
-          {Platform.OS === 'web' && (
-            <Button
-              title="GitHub"
-              icon="🔗"
-              variant="outline"
-              size="medium"
-              onPress={() => handleOpenLink('https://github.com')}
-              style={styles.githubButton}
-            />
-          )}
         </Card>
 
         {/* Version Info */}
         <View style={styles.versionSection}>
-          <ThemedText style={[styles.versionText, { color: colors.textTertiary }]}>
-            版本 1.0.0
-          </ThemedText>
+          <ThemedText style={[styles.versionText, { color: colors.textTertiary }]}>版本 1.0.0</ThemedText>
         </View>
       </ScrollView>
     </ThemedView>
@@ -257,26 +163,26 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.md,
     paddingBottom: Spacing.xl,
   },
-  
+
   // Features Section
   featuresSection: {
-    flexDirection: 'column',
+    flexDirection: "column",
     marginBottom: Spacing.lg,
     gap: Spacing.sm,
   },
   featureCard: {
-    width: '100%',
+    width: "100%",
     minHeight: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: Spacing.md,
   },
   featureIconContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: Spacing.sm,
     ...Shadows.glow,
   },
@@ -285,16 +191,16 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     ...Typography.labelLarge,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: Spacing.xs,
   },
   featureText: {
     ...Typography.bodySmall,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 19,
     opacity: 0.8,
   },
-  
+
   // Instructions Section
   instructionsCard: {
     marginBottom: Spacing.lg,
@@ -307,28 +213,28 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   instructionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   stepNumber: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: Spacing.sm,
     ...Shadows.glow,
   },
   stepNumberText: {
     ...Typography.labelSmall,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   instructionText: {
     ...Typography.bodySmall,
     flex: 1,
     lineHeight: 20,
   },
-  
+
   // Tech Details
   techCard: {
     marginBottom: Spacing.lg,
@@ -348,7 +254,7 @@ const styles = StyleSheet.create({
     ...Typography.bodySmall,
     lineHeight: 20,
   },
-  
+
   // Privacy
   privacyCard: {
     marginBottom: Spacing.lg,
@@ -361,7 +267,7 @@ const styles = StyleSheet.create({
     ...Typography.bodySmall,
     lineHeight: 20,
   },
-  
+
   // About
   aboutCard: {
     marginBottom: Spacing.lg,
@@ -376,12 +282,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   githubButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
-  
+
   // Version
   versionSection: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: Spacing.md,
   },
   versionText: {
