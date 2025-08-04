@@ -847,8 +847,8 @@ const styles = StyleSheet.create({
   
   // Convert Section
   convertSection: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
   
   // Results Section
