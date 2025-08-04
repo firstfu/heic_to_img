@@ -142,7 +142,7 @@ export function FullScreenProgress({ visible, progress = 0, title = "正在處�
         ]}
       >
         {/* 背景漸層 */}
-        <LinearGradient colors={[colors.primary, colors.primaryDark || colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={[colors.primary, colors.primaryHover]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
 
         {/* 內容區域 */}
         <Animated.View
