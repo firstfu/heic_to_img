@@ -30,6 +30,19 @@ export default function ResultsScreen() {
   // 解析傳入的檔案資料
   const convertedFiles: ConvertedFile[] = files ? JSON.parse(files as string) : [];
 
+  // 根據檔案格式獲取對應的顏色
+  const getFormatColor = (format: string): string => {
+    const formatColorMap: { [key: string]: string } = {
+      JPEG: colors.secondary,     // 橙色
+      JPG: colors.secondary,       // 橙色
+      PNG: colors.emerald,         // 綠色
+      WEBP: colors.teal,          // 淺藍色
+      BMP: colors.accent,         // 螢光綠
+      GIF: colors.electric,       // 電光藍
+    };
+    return formatColorMap[format?.toUpperCase()] || colors.primary;
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 B";
     const k = 1024;
@@ -189,7 +202,7 @@ export default function ResultsScreen() {
             </View>
             <View style={styles.statRow}>
               <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>節省空間</ThemedText>
-              <ThemedText style={[styles.statValue, { color: totalSavings > 0 ? colors.emerald : colors.coral }]}>
+              <ThemedText style={[styles.statValue, { color: totalSavings > 0 ? colors.emerald : colors.error }]}>
                 {getCompressionRatio(totalOriginalSize, totalConvertedSize)}
               </ThemedText>
             </View>
@@ -212,13 +225,13 @@ export default function ResultsScreen() {
                     <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>{file.name}</ThemedText>
                     <ThemedText style={[styles.fileMeta, { color: colors.textTertiary }]}>
                       {formatFileSize(file.originalSize)} → {formatFileSize(file.size)}
-                      <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}>
+                      <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.error }}>
                         {" "}
                         ({getCompressionRatio(file.originalSize, file.size)})
                       </ThemedText>
                     </ThemedText>
                   </View>
-                  <View style={[styles.formatBadge, { backgroundColor: colors.primary }]}>
+                  <View style={[styles.formatBadge, { backgroundColor: getFormatColor(file.format || "JPEG") }]}>
                     <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>{file.format?.toUpperCase() || "JPEG"}</ThemedText>
                   </View>
                 </View>
