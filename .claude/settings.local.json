@@ -15,6 +15,9 @@
       "mcp__Context7__resolve-library-id",
       "mcp__Context7__get-library-docs"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/firstfu/Desktop/heic_to_img_workbase/heic_to_img_api"
+    ]
   }
 }

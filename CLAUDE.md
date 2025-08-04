@@ -63,3 +63,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - TypeScript 用於型別安全
 - ESLint 用於程式碼品質檢查
 - heic2any 用於 HEIC 格式轉換 (Web 平台)
+
+## 專案路徑
+- 後端 api 專案的路徑: `/Users/firstfu/Desktop/heic_to_img_workbase/heic_to_img_api`
