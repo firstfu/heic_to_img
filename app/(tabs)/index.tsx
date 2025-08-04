@@ -394,63 +394,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Estimation Info */}
-          {selectedFiles.length > 0 && (
-            <View style={styles.estimationContainer}>
-              <Card style={styles.estimationCard} variant="glass">
-                <View style={styles.estimationHeader}>
-                  <ThemedText style={[styles.estimationTitle, { color: colors.textSecondary }]}>
-                    轉換預估
-                  </ThemedText>
-                  <View style={[styles.estimationIcon, { backgroundColor: colors.primary }]}>
-                    <ThemedText style={[styles.estimationIconText, { color: colors.textInverse }]}>
-                      📊
-                    </ThemedText>
-                  </View>
-                </View>
-                
-                {(() => {
-                  const info = getQualityInfo(quality, outputFormat);
-                  return (
-                    <View style={styles.estimationGrid}>
-                      <View style={styles.estimationItem}>
-                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
-                          平均檔案大小
-                        </ThemedText>
-                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
-                          {info.sizePerFile}
-                        </ThemedText>
-                      </View>
-                      <View style={styles.estimationItem}>
-                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
-                          總計大小
-                        </ThemedText>
-                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
-                          {info.totalSize}
-                        </ThemedText>
-                      </View>
-                      <View style={styles.estimationItem}>
-                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
-                          預估時間
-                        </ThemedText>
-                        <ThemedText style={[styles.estimationValue, { color: colors.textPrimary }]}>
-                          ~{info.estimatedTime}秒
-                        </ThemedText>
-                      </View>
-                      <View style={styles.estimationItem}>
-                        <ThemedText style={[styles.estimationLabel, { color: colors.textTertiary }]}>
-                          檔案數量
-                        </ThemedText>
-                        <ThemedText style={[styles.estimationValue, { color: colors.primary }]}>
-                          {selectedFiles.length} 個
-                        </ThemedText>
-                      </View>
-                    </View>
-                  );
-                })()}
-              </Card>
-            </View>
-          )}
           </Card>
         </Animated.View>
 
