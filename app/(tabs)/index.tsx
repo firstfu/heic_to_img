@@ -15,7 +15,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { LoadingOverlay } from '@/components/ui/LoadingOverlay';
+import { FullScreenProgress } from '@/components/ui/FullScreenProgress';
 import { FileSelector } from '@/components/FileSelector';
 import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
 
@@ -99,6 +99,36 @@ export default function HomeScreen() {
     setProgressValue(0);
   };
 
+  // 測試進度條功能
+  const handleTestProgress = async () => {
+    setIsConverting(true);
+    setProgressValue(0);
+    setConversionProgress('準備轉換...');
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // 模擬 3 個檔案的轉換過程
+    for (let i = 0; i < 3; i++) {
+      const progress = i / 3;
+      setProgressValue(progress);
+      setConversionProgress(`正在處理檔案 ${i + 1}/3...`);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const completedProgress = (i + 1) / 3;
+      setProgressValue(completedProgress);
+      setConversionProgress(`已完成 ${i + 1}/3 個檔案`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    setProgressValue(1);
+    setConversionProgress('轉換完成！');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setIsConverting(false);
+    setConversionProgress('');
+    setProgressValue(0);
+  };
+
 
   const handleConvert = async () => {
     if (selectedFiles.length === 0) {
@@ -107,16 +137,35 @@ export default function HomeScreen() {
     }
 
     setIsConverting(true);
+    setProgressValue(0);
+    setConversionProgress('準備轉換...');
+    
+    // 初始延遲讓用戶看到進度條啟動
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const converted: any[] = [];
 
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const progress = (i + 1) / selectedFiles.length;
+        
+        // 更新進度和狀態
+        const progress = i / selectedFiles.length;
         setProgressValue(progress);
-        setConversionProgress(`轉換中... ${i + 1}/${selectedFiles.length}`);
+        setConversionProgress(`正在處理 ${file.name}...`);
+        
+        // 小延遲讓用戶看到進度更新
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const convertedUri = await convertHeicToJpg(file.uri);
+        
+        // 轉換完成後的進度更新
+        const completedProgress = (i + 1) / selectedFiles.length;
+        setProgressValue(completedProgress);
+        setConversionProgress(`已完成 ${i + 1}/${selectedFiles.length} 個檔案`);
+        
+        // 轉換完成延遲
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         if (convertedUri) {
           const extension = outputFormat === 'jpeg' ? 'jpg' : 'png';
@@ -137,6 +186,11 @@ export default function HomeScreen() {
           console.error(`轉換失敗: ${file.name}`);
         }
       }
+      
+      // 最終完成狀態
+      setProgressValue(1);
+      setConversionProgress('轉換完成！正在準備結果...');
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       if (converted.length > 0) {
         // 轉換完成後跳轉到結果頁面
@@ -383,14 +437,27 @@ export default function HomeScreen() {
             fullWidth
             size="large"
           />
+          
+          {/* 測試按鈕 - 可以直接看到全頁面進度條 */}
+          <View style={styles.testButtonSection}>
+            <Button
+              title="測試全頁面進度條"
+              icon="🧪"
+              onPress={handleTestProgress}
+              disabled={isConverting}
+              variant="outline"
+              fullWidth
+              size="medium"
+            />
+          </View>
         </View>
 
 
 
       </ScrollView>
       
-      {/* Loading Overlay */}
-      <LoadingOverlay
+      {/* Full Screen Progress */}
+      <FullScreenProgress
         visible={isConverting}
         progress={progressValue}
         title="正在轉換 HEIC 檔案"
@@ -582,5 +649,8 @@ const styles = StyleSheet.create({
   convertSection: {
     marginTop: Spacing.sm,
     marginBottom: Spacing.lg,
+  },
+  testButtonSection: {
+    marginTop: Spacing.md,
   },
 });
