@@ -264,7 +264,7 @@ export default function HomeScreen() {
           headerStyle: {
             backgroundColor: colors.primary,
             height: 120, // 增加導航欄高度以容納標題和副標題
-          },
+          } as any,
           headerTintColor: colors.textInverse,
           headerShadowVisible: false,
           headerTransparent: false,
@@ -522,19 +522,17 @@ export default function HomeScreen() {
 
 
         {/* Convert Button */}
-        {selectedFiles.length > 0 && (
-          <View style={styles.convertSection}>
-            <Button
-              title={isConverting ? '轉換中...' : '開始轉換'}
-              icon={isConverting ? undefined : '🚀'}
-              onPress={handleConvert}
-              disabled={isConverting}
-              loading={isConverting}
-              fullWidth
-              size="large"
-            />
-          </View>
-        )}
+        <View style={styles.convertSection}>
+          <Button
+            title={isConverting ? '轉換中...' : selectedFiles.length === 0 ? '選擇檔案後開始轉換' : '開始轉換'}
+            icon={isConverting ? undefined : selectedFiles.length === 0 ? '📁' : '🚀'}
+            onPress={handleConvert}
+            disabled={isConverting || selectedFiles.length === 0}
+            loading={isConverting}
+            fullWidth
+            size="large"
+          />
+        </View>
 
         {/* Results Section */}
         {convertedFiles.length > 0 && (
