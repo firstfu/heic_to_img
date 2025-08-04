@@ -46,19 +46,19 @@ export function Button({
     switch (size) {
       case 'small':
         return {
-          paddingVertical: 8,
+          height: 40, // 固定高度確保一致性
           paddingHorizontal: 16,
           borderRadius: BorderRadius.sm,
         };
       case 'large':
         return {
-          paddingVertical: 20,
+          height: 56, // 固定高度確保一致性
           paddingHorizontal: 32,
           borderRadius: BorderRadius.lg,
         };
       default:
         return {
-          paddingVertical: 16,
+          height: 48, // 固定高度確保一致性
           paddingHorizontal: 24,
           borderRadius: BorderRadius.md,
         };

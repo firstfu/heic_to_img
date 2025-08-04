@@ -380,7 +380,6 @@ const styles = StyleSheet.create({
   },
   batchButton: {
     flex: 1,
-    minHeight: 40, // 確保統一高度
   },
   
   // 檔案列表
@@ -427,7 +426,6 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    minHeight: 40, // 確保統一高度
   },
   
   // 返回區域
