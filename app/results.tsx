@@ -229,7 +229,7 @@ export default function ResultsScreen() {
             <Button
               title="全部儲存"
               variant="primary"
-              size="medium"
+              size="small"
               icon="💾"
               onPress={handleSaveAll}
               style={styles.batchButton}
@@ -237,7 +237,7 @@ export default function ResultsScreen() {
             <Button
               title="全部分享"
               variant="outline"
-              size="medium"
+              size="small"
               icon="📤"
               onPress={handleShareAll}
               style={styles.batchButton}
@@ -380,6 +380,7 @@ const styles = StyleSheet.create({
   },
   batchButton: {
     flex: 1,
+    minHeight: 40, // 確保統一高度
   },
   
   // 檔案列表
@@ -426,6 +427,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
+    minHeight: 40, // 確保統一高度
   },
   
   // 返回區域
