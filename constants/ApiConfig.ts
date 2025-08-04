@@ -6,7 +6,7 @@
  */
 
 // 預設 API 基礎 URL (可透過環境變數覆寫)
-const DEFAULT_API_BASE_URL = 'http://localhost:8000';
+const DEFAULT_API_BASE_URL = 'http://192.168.23.105:8000';
 
 // 從環境變數讀取 API URL，若無則使用預設值
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL;
