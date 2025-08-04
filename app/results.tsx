@@ -206,29 +206,34 @@ export default function ResultsScreen() {
         <View style={styles.filesContainer}>
           {convertedFiles.map((file, index) => (
             <Card key={index} style={styles.fileItem} variant="outlined">
-              <View style={styles.fileHeader}>
-                <View style={styles.fileInfo}>
-                  <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>{file.name}</ThemedText>
-                  <ThemedText style={[styles.fileMeta, { color: colors.textTertiary }]}>
-                    {formatFileSize(file.originalSize)} → {formatFileSize(file.size)}
-                    <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}> ({getCompressionRatio(file.originalSize, file.size)})</ThemedText>
-                  </ThemedText>
+              <View style={styles.fileContent}>
+                <View style={styles.fileHeader}>
+                  <View style={styles.fileInfo}>
+                    <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>{file.name}</ThemedText>
+                    <ThemedText style={[styles.fileMeta, { color: colors.textTertiary }]}>
+                      {formatFileSize(file.originalSize)} → {formatFileSize(file.size)}
+                      <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}>
+                        {" "}
+                        ({getCompressionRatio(file.originalSize, file.size)})
+                      </ThemedText>
+                    </ThemedText>
+                  </View>
+                  <View style={[styles.formatBadge, { backgroundColor: colors.primary }]}>
+                    <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>{file.format?.toUpperCase() || "JPEG"}</ThemedText>
+                  </View>
                 </View>
-                <View style={[styles.formatBadge, { backgroundColor: colors.primary }]}>
-                  <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>{file.format?.toUpperCase() || "JPEG"}</ThemedText>
-                </View>
-              </View>
 
-              {/* 操作按鈕 */}
-              <View style={styles.actionButtons}>
-                <Button
-                  title={Platform.OS === "web" ? "下載" : "儲存"}
-                  variant="primary"
-                  size="small"
-                  onPress={() => handleSaveToGallery(file.uri, file.name)}
-                  style={styles.actionButton}
-                />
-                <Button title="分享" variant="primary" size="small" onPress={() => handleShare(file.uri, file.name)} style={styles.actionButton} />
+                {/* 操作按鈕 */}
+                <View style={styles.actionButtons}>
+                  <Button
+                    title={Platform.OS === "web" ? "下載" : "儲存"}
+                    variant="primary"
+                    size="small"
+                    onPress={() => handleSaveToGallery(file.uri, file.name)}
+                    style={styles.actionButton}
+                  />
+                  <Button title="分享" variant="primary" size="small" onPress={() => handleShare(file.uri, file.name)} style={styles.actionButton} />
+                </View>
               </View>
             </Card>
           ))}
@@ -327,11 +332,15 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     padding: Spacing.md,
   },
+  fileContent: {
+    flexDirection: "column",
+    gap: Spacing.md,
+  },
   fileHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: Spacing.md,
+    width: "100%",
   },
   fileInfo: {
     flex: 1,
@@ -359,9 +368,8 @@ const styles = StyleSheet.create({
   // 操作按鈕
   actionButtons: {
     flexDirection: "row",
-    gap: 4, // 使用更小的固定間距
-    justifyContent: "flex-end", // 移到右側
-    marginLeft: 'auto', // 確保容器本身靠右
+    gap: 1, // 更小的間距
+    justifyContent: "flex-end", // 靠右對齊
   },
   actionButton: {
     width: 100, // 恢復原始寬度
