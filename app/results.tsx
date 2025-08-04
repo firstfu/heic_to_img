@@ -254,7 +254,13 @@ export default function ResultsScreen() {
 
         {/* 返回按鈕 */}
         <View style={styles.backSection}>
-          <Button title="返回首頁" variant="ghost" size="large" onPress={() => router.back()} fullWidth />
+          <Button 
+            title="返回首頁" 
+            variant="primary" 
+            size="large" 
+            onPress={() => router.back()} 
+            fullWidth 
+          />
         </View>
       </ScrollView>
     </ThemedView>
@@ -390,6 +396,9 @@ const styles = StyleSheet.create({
 
   // 返回區域
   backSection: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
+    paddingTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
 });
