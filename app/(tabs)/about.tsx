@@ -100,7 +100,7 @@ export default function AboutScreen() {
           <ThemedText style={[styles.instructionsTitle, { color: colors.textPrimary }]}>使用說明</ThemedText>
           <View style={styles.instructionsList}>
             {[
-              { step: "1", text: "拖拽或點擊選擇 HEIC 檔案" },
+              { step: "1", text: "點擊選擇圖片檔案" },
               { step: "2", text: "調整轉換品質和格式設定" },
               { step: "3", text: "點擊開始轉換執行處理" },
               { step: "4", text: "下載轉換完成的檔案" },
@@ -121,7 +121,7 @@ export default function AboutScreen() {
 
           <View style={styles.techSection}>
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>支援的格式</ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>• 輸入格式：HEIC, HEIF{"\n"}• 輸出格式：JPEG, PNG</ThemedText>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>• 輸入格式：HEIC{"\n"}• 輸出格式：JPEG, PNG</ThemedText>
           </View>
 
           <View style={styles.techSection}>
