@@ -12,6 +12,7 @@ import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
+import { CustomHeader } from '@/components/ui/CustomHeader';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -254,13 +255,20 @@ export default function HomeScreen() {
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <Stack.Screen 
         options={{
-          title: 'HEIC 轉換工具',
+          headerTitle: () => (
+            <CustomHeader 
+              title="HEIC 轉換工具"
+              subtitle="將 HEIC 格式轉換為 JPEG 或 PNG"
+            />
+          ),
           headerStyle: {
             backgroundColor: colors.primary,
+            height: 120, // 增加導航欄高度以容納標題和副標題
           },
           headerTintColor: colors.textInverse,
           headerShadowVisible: false,
           headerTransparent: false,
+          headerTitleAlign: 'center',
         }}
       />
       
@@ -268,12 +276,6 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section - 簡化的副標題 */}
-        <View style={styles.simpleHeaderContainer}>
-          <ThemedText style={[styles.simpleSubtitle, { color: colors.textSecondary }]}>
-            將 HEIC 格式轉換為 JPEG 或 PNG
-          </ThemedText>
-        </View>
         
         {/* File Selection */}
         <View style={[styles.mainCard, { backgroundColor: 'transparent' }]}>
@@ -628,15 +630,6 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
   },
   
-  // Header Section
-  simpleHeaderContainer: {
-    marginBottom: Spacing.lg,
-    alignItems: 'center',
-  },
-  simpleSubtitle: {
-    ...Typography.body,
-    textAlign: 'center',
-  },
   
   // Main Card
   mainCard: {
