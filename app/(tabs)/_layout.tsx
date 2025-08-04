@@ -29,19 +29,11 @@ export default function TabLayout() {
         headerShadowVisible: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-            backgroundColor: isDark ? 'rgba(28, 28, 30, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-            borderTopWidth: 1,
-            borderTopColor: colors.borderSubtle,
-          },
-          default: {
-            backgroundColor: colors.surface,
-            borderTopWidth: 1,
-            borderTopColor: colors.borderSubtle,
-          },
-        }),
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopWidth: 1,
+          borderTopColor: colors.borderSubtle,
+        },
       }}
     >
       <Tabs.Screen

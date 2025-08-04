@@ -254,13 +254,13 @@ export default function HomeScreen() {
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
       <Stack.Screen 
         options={{
-          title: '',
+          title: 'HEIC 轉換工具',
           headerStyle: {
-            backgroundColor: 'transparent',
+            backgroundColor: colors.primary,
           },
           headerTintColor: colors.textInverse,
           headerShadowVisible: false,
-          headerTransparent: true,
+          headerTransparent: false,
         }}
       />
       
@@ -268,26 +268,11 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <LinearGradient
-            colors={colors.primaryGradient as [string, string, ...string[]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.headerGradient}
-          >
-            <View style={styles.headerContent}>
-              <View style={styles.titleContainer}>
-                <ThemedText style={[styles.title, { color: colors.textInverse }]}>
-                  HEIC 轉換工具
-                </ThemedText>
-                <View style={[styles.titleAccent, { backgroundColor: colors.neon }]} />
-              </View>
-              <ThemedText style={[styles.subtitle, { color: colors.textInverse, opacity: 0.9 }]}>
-                將 HEIC 格式轉換為 JPEG 或 PNG
-              </ThemedText>
-            </View>
-          </LinearGradient>
+        {/* Header Section - 簡化的副標題 */}
+        <View style={styles.simpleHeaderContainer}>
+          <ThemedText style={[styles.simpleSubtitle, { color: colors.textSecondary }]}>
+            將 HEIC 格式轉換為 JPEG 或 PNG
+          </ThemedText>
         </View>
         
         {/* File Selection */}
@@ -639,50 +624,18 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: 0, // 因為沉浸式設計，從頂部開始
+    paddingTop: Spacing.lg, // 調整為正常間距
     paddingBottom: Spacing.xl,
   },
   
   // Header Section
-  headerContainer: {
+  simpleHeaderContainer: {
     marginBottom: Spacing.lg,
-    marginHorizontal: -Spacing.lg,
-    overflow: 'hidden',
-  },
-  headerGradient: {
-    paddingTop: Spacing.xxxl + 60, // 增加更多頂部空間以覆蓋狀態欄
-    paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
-    marginTop: -40, // 向上延伸到螢幕頂部
-    ...Shadows.neon,
-  },
-  headerContent: {
     alignItems: 'center',
-    position: 'relative',
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  title: {
-    ...Typography.h2,
-    textAlign: 'center',
-    fontWeight: '800',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  titleAccent: {
-    width: 60,
-    height: 3,
-    borderRadius: BorderRadius.full,
-    marginTop: Spacing.xs,
-    ...Shadows.glow,
-  },
-  subtitle: {
+  simpleSubtitle: {
     ...Typography.body,
     textAlign: 'center',
-    marginBottom: Spacing.md,
   },
   
   // Main Card
