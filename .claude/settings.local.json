@@ -17,7 +17,8 @@
       "Bash(uv init:*)",
       "Bash(touch:*)",
       "Bash(uv sync:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(uv run:*)"
     ],
     "deny": [],
     "additionalDirectories": [

@@ -9,13 +9,13 @@
  * 
  * 核心功能：
  * - 檔案選擇: 支援系統檔案選擇器和相簿選擇
- * - 格式轉換: HEIC → JPEG/PNG，使用 heic2any 庫
+ * - 格式轉換: HEIC → JPEG/PNG，使用後端 API 轉換
  * - 品質控制: 50%-100% 可調式品質設定
  * - 批量處理: 多檔案同時轉換，顯示個別進度
  * - 結果導航: 轉換完成後自動跳轉至結果頁面
  * 
  * 技術特色：
- * - 跨平台支援 (Web: heic2any, 原生: 待實作)
+ * - 原生平台支援 (iOS + Android)
  * - 流暢動畫效果 (淡入、滑入、縮放動畫)
  * - 響應式 UI 設計，支援明暗主題
  * - 智慧檔案大小估算和格式最佳化建議
@@ -40,7 +40,6 @@ import {
   View,
   ScrollView,
   Alert,
-  Platform,
   Animated,
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
@@ -54,6 +53,8 @@ import { Card } from '@/components/ui/Card';
 import { FullScreenProgress } from '@/components/ui/FullScreenProgress';
 import { FileSelector } from '@/components/FileSelector';
 import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
+import { apiService } from '@/services/ApiService';
+import { ConvertFileRequest, OutputFormat } from '@/types/Api';
 
 
 export default function HomeScreen() {
@@ -95,32 +96,53 @@ export default function HomeScreen() {
 
 
 
-  const convertHeicToJpg = async (fileUri: string): Promise<string | null> => {
+  const convertHeicToJpg = async (file: any): Promise<{ uri: string; size: number } | null> => {
     try {
-      if (Platform.OS === 'web') {
-        // 在網頁環境使用 heic2any
-        const heic2any = (await import('heic2any')).default;
-        
-        const response = await fetch(fileUri);
-        const heicBlob = await response.blob();
-        
-        const convertedBlob = await heic2any({
-          blob: heicBlob,
-          toType: `image/${outputFormat}`,
-          quality: quality,
-        });
+      console.log('開始使用 API 轉換 HEIC 檔案:', file.name);
+      
+      // 準備轉換請求
+      const convertRequest: ConvertFileRequest = {
+        file: {
+          uri: file.uri,
+          name: file.name,
+          type: file.type || 'image/heic',
+        },
+        format: outputFormat as OutputFormat,
+        quality: Math.round(quality * 100), // 轉換為 1-100 的整數
+      };
 
-        const convertedFile = convertedBlob as Blob;
-        const jpgDataUrl = URL.createObjectURL(convertedFile);
-        return jpgDataUrl;
+      // 呼叫 API 轉換
+      const response = await apiService.convertFile(convertRequest);
+      
+      if (response.success) {
+        console.log(`轉換成功: ${response.filename}, 大小: ${response.converted_size} bytes`);
+        
+        // 由於我們使用的是轉換 API 而非下載 API，
+        // 這裡需要再呼叫下載 API 來取得實際檔案
+        const blob = await apiService.convertAndDownload(convertRequest);
+        
+        // 在 React Native 中處理 blob 需要特殊處理
+        // 這裡暫時返回模擬的 URI，實際實作需要根據平台處理檔案儲存
+        const reader = new FileReader();
+        
+        return new Promise((resolve, reject) => {
+          reader.onload = () => {
+            resolve({
+              uri: reader.result as string, // Base64 data URL
+              size: response.converted_size,
+            });
+          };
+          reader.onerror = () => {
+            reject(new Error('無法讀取轉換後的檔案'));
+          };
+          reader.readAsDataURL(blob);
+        });
       } else {
-        // 在原生環境，目前只返回原始檔案
-        // 實際專案中需要原生轉換解決方案
-        console.log('原生環境暫不支援 HEIC 轉換');
-        return fileUri;
+        throw new Error(response.message || '轉換失敗');
       }
-    } catch (error) {
-      console.error('轉換失敗:', error);
+    } catch (error: any) {
+      console.error('轉換 HEIC 檔案時發生錯誤:', error);
+      Alert.alert('轉換錯誤', error.message || '轉換過程中發生未知錯誤');
       return null;
     }
   };
@@ -150,7 +172,23 @@ export default function HomeScreen() {
     // 初始延遲讓用戶看到進度條啟動
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    // 檢查 API 服務是否可用
+    setConversionProgress('檢查服務狀態...');
+    const isServiceAvailable = await apiService.isServiceAvailable();
+    if (!isServiceAvailable) {
+      Alert.alert(
+        '服務不可用', 
+        '無法連接到轉換服務，請確認：\n• 網路連接正常\n• 轉換服務已啟動\n• API 地址設定正確',
+        [{ text: '確定' }]
+      );
+      setIsConverting(false);
+      setConversionProgress('');
+      setProgressValue(0);
+      return;
+    }
+    
     const converted: any[] = [];
+    const failed: any[] = [];
 
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
@@ -164,7 +202,29 @@ export default function HomeScreen() {
         // 小延遲讓用戶看到進度更新
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        const convertedUri = await convertHeicToJpg(file.uri);
+        try {
+          const convertResult = await convertHeicToJpg(file);
+          
+          if (convertResult) {
+            const extension = outputFormat === 'jpeg' ? 'jpg' : 'png';
+            const convertedFile = {
+              name: file.name.replace(/\.(heic|heif)$/i, `.${extension}`),
+              originalName: file.name,
+              uri: convertResult.uri,
+              size: convertResult.size,
+              originalSize: file.size,
+              convertedAt: new Date().toISOString(),
+              quality: quality,
+              format: outputFormat,
+            };
+            converted.push(convertedFile);
+          } else {
+            failed.push({ file, error: '轉換失敗' });
+          }
+        } catch (fileError: any) {
+          console.error(`轉換檔案 ${file.name} 時發生錯誤:`, fileError);
+          failed.push({ file, error: fileError.message || '未知錯誤' });
+        }
         
         // 轉換完成後的進度更新
         const completedProgress = (i + 1) / selectedFiles.length;
@@ -173,25 +233,6 @@ export default function HomeScreen() {
         
         // 轉換完成延遲
         await new Promise(resolve => setTimeout(resolve, 300));
-        
-        if (convertedUri) {
-          const extension = outputFormat === 'jpeg' ? 'jpg' : 'png';
-          // 計算轉換後的檔案大小（模擬）
-          const estimatedNewSize = file.size * (outputFormat === 'png' ? quality * 1.5 : quality * 0.8);
-          const convertedFile = {
-            name: file.name.replace(/\.(heic|heif)$/i, `.${extension}`),
-            originalName: file.name,
-            uri: convertedUri,
-            size: Math.round(estimatedNewSize),
-            originalSize: file.size,
-            convertedAt: new Date().toISOString(),
-            quality: quality,
-            format: outputFormat,
-          };
-          converted.push(convertedFile);
-        } else {
-          console.error(`轉換失敗: ${file.name}`);
-        }
       }
       
       // 最終完成狀態
@@ -199,16 +240,51 @@ export default function HomeScreen() {
       setConversionProgress('轉換完成！正在準備結果...');
       await new Promise(resolve => setTimeout(resolve, 800));
       
+      // 根據轉換結果顯示不同訊息
       if (converted.length > 0) {
-        // 轉換完成後跳轉到結果頁面
-        router.push({
-          pathname: '/results',
-          params: {
-            files: JSON.stringify(converted)
-          }
-        });
+        if (failed.length > 0) {
+          // 部分成功
+          Alert.alert(
+            '轉換完成', 
+            `成功轉換 ${converted.length} 個檔案\n失敗 ${failed.length} 個檔案`,
+            [
+              {
+                text: '查看失敗原因',
+                onPress: () => {
+                  const failedList = failed.map(f => `• ${f.file.name}: ${f.error}`).join('\n');
+                  Alert.alert('失敗檔案詳情', failedList);
+                }
+              },
+              {
+                text: '查看結果',
+                onPress: () => {
+                  router.push({
+                    pathname: '/results',
+                    params: {
+                      files: JSON.stringify(converted)
+                    }
+                  });
+                }
+              }
+            ]
+          );
+        } else {
+          // 全部成功
+          router.push({
+            pathname: '/results',
+            params: {
+              files: JSON.stringify(converted)
+            }
+          });
+        }
       } else {
-        Alert.alert('轉換失敗', '沒有檔案成功轉換，請重試');
+        // 全部失敗
+        const failedList = failed.map(f => `• ${f.file.name}: ${f.error}`).join('\n');
+        Alert.alert(
+          '轉換失敗', 
+          `所有檔案轉換失敗：\n\n${failedList}`,
+          [{ text: '確定' }]
+        );
       }
     } catch (error) {
       console.error('轉換過程中發生錯誤:', error);
