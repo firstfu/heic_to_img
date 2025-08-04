@@ -57,33 +57,7 @@ export default function HomeScreen() {
     ]).start();
   }, [fadeAnim, slideAnim, scaleAnim]);
 
-  const getQualityInfo = (quality: number, format: 'jpeg' | 'png') => {
-    const avgFileSize = selectedFiles.reduce((acc, file) => acc + (file.size || 5000000), 0) / selectedFiles.length;
-    
-    let sizeMultiplier;
-    if (format === 'png') {
-      sizeMultiplier = quality * 1.5; // PNG 通常較大
-    } else {
-      sizeMultiplier = quality * 0.8; // JPEG 較小
-    }
-    
-    const estimatedSize = avgFileSize * sizeMultiplier;
-    const estimatedTime = selectedFiles.length * (format === 'png' ? 3 : 2); // PNG 需要更多時間
-    
-    return {
-      sizePerFile: formatFileSize(estimatedSize),
-      totalSize: formatFileSize(estimatedSize * selectedFiles.length),
-      estimatedTime: estimatedTime
-    };
-  };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  };
 
   const convertHeicToJpg = async (fileUri: string): Promise<string | null> => {
     try {
@@ -601,55 +575,6 @@ const styles = StyleSheet.create({
   qualityCardDesc: {
     ...Typography.caption,
     fontSize: 9,
-    textAlign: 'center',
-  },
-  
-  // Estimation Section
-  estimationContainer: {
-    marginTop: Spacing.lg,
-  },
-  estimationCard: {
-    padding: Spacing.md,
-  },
-  estimationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  estimationTitle: {
-    ...Typography.labelLarge,
-    fontWeight: '600',
-  },
-  estimationIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: BorderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  estimationIconText: {
-    fontSize: 14,
-  },
-  estimationGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-  },
-  estimationItem: {
-    flex: 1,
-    minWidth: '45%',
-    alignItems: 'center',
-  },
-  estimationLabel: {
-    ...Typography.caption,
-    fontSize: 11,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  estimationValue: {
-    ...Typography.labelMedium,
-    fontWeight: '600',
     textAlign: 'center',
   },
   
