@@ -1,21 +1,14 @@
-import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Platform,
-  Share,
-} from 'react-native';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as Sharing from 'expo-sharing';
-import * as MediaLibrary from 'expo-media-library';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { BorderRadius, NewColors, Shadows, Spacing, Typography } from "@/constants/NewColors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import * as MediaLibrary from "expo-media-library";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as Sharing from "expo-sharing";
+import React from "react";
+import { Alert, Platform, ScrollView, Share, StyleSheet, View } from "react-native";
 
 interface ConvertedFile {
   name: string;
@@ -31,20 +24,18 @@ interface ConvertedFile {
 export default function ResultsScreen() {
   const { files } = useLocalSearchParams();
   const router = useRouter();
-  const isDark = useThemeColor({}, 'background') === '#151718';
+  const isDark = useThemeColor({}, "background") === "#151718";
   const colors = isDark ? NewColors.dark : NewColors.light;
 
   // 解析傳入的檔案資料
-  const convertedFiles: ConvertedFile[] = files 
-    ? JSON.parse(files as string) 
-    : [];
+  const convertedFiles: ConvertedFile[] = files ? JSON.parse(files as string) : [];
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
   const getCompressionRatio = (originalSize: number, newSize: number): string => {
@@ -54,8 +45,8 @@ export default function ResultsScreen() {
 
   const handleShare = async (fileUri: string, fileName: string) => {
     try {
-      if (Platform.OS === 'web') {
-        const link = document.createElement('a');
+      if (Platform.OS === "web") {
+        const link = document.createElement("a");
         link.href = fileUri;
         link.download = fileName;
         link.click();
@@ -63,50 +54,50 @@ export default function ResultsScreen() {
         const isAvailable = await Sharing.isAvailableAsync();
         if (isAvailable) {
           await Sharing.shareAsync(fileUri, {
-            mimeType: fileName.endsWith('.png') ? 'image/png' : 'image/jpeg',
-            dialogTitle: '分享圖片',
+            mimeType: fileName.endsWith(".png") ? "image/png" : "image/jpeg",
+            dialogTitle: "分享圖片",
           });
         } else {
-          Alert.alert('無法分享', '此設備不支援分享功能');
+          Alert.alert("無法分享", "此設備不支援分享功能");
         }
       }
     } catch (error) {
-      console.error('分享失敗:', error);
-      Alert.alert('錯誤', '分享檔案時發生錯誤');
+      console.error("分享失敗:", error);
+      Alert.alert("錯誤", "分享檔案時發生錯誤");
     }
   };
 
   const handleSaveToGallery = async (fileUri: string, fileName: string) => {
     try {
-      if (Platform.OS === 'web') {
-        const link = document.createElement('a');
+      if (Platform.OS === "web") {
+        const link = document.createElement("a");
         link.href = fileUri;
         link.download = fileName;
         link.click();
-        Alert.alert('成功', '檔案已下載');
+        Alert.alert("成功", "檔案已下載");
       } else {
         const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('權限不足', '需要相簿權限才能儲存圖片');
+        if (status !== "granted") {
+          Alert.alert("權限不足", "需要相簿權限才能儲存圖片");
           return;
         }
 
         const asset = await MediaLibrary.createAssetAsync(fileUri);
-        await MediaLibrary.createAlbumAsync('HEIC轉換', asset, false);
-        Alert.alert('成功', '圖片已儲存到相簿');
+        await MediaLibrary.createAlbumAsync("HEIC轉換", asset, false);
+        Alert.alert("成功", "圖片已儲存到相簿");
       }
     } catch (error) {
-      console.error('儲存失敗:', error);
-      Alert.alert('錯誤', '儲存檔案時發生錯誤');
+      console.error("儲存失敗:", error);
+      Alert.alert("錯誤", "儲存檔案時發生錯誤");
     }
   };
 
   const handleShareAll = async () => {
     try {
-      if (Platform.OS === 'web') {
+      if (Platform.OS === "web") {
         // 網頁版本批量下載
-        convertedFiles.forEach((file) => {
-          const link = document.createElement('a');
+        convertedFiles.forEach(file => {
+          const link = document.createElement("a");
           link.href = file.uri;
           link.download = file.name;
           link.click();
@@ -120,37 +111,37 @@ export default function ResultsScreen() {
         });
       }
     } catch (error) {
-      console.error('批量分享失敗:', error);
-      Alert.alert('錯誤', '批量分享時發生錯誤');
+      console.error("批量分享失敗:", error);
+      Alert.alert("錯誤", "批量分享時發生錯誤");
     }
   };
 
   const handleSaveAll = async () => {
     try {
-      if (Platform.OS === 'web') {
-        convertedFiles.forEach((file) => {
-          const link = document.createElement('a');
+      if (Platform.OS === "web") {
+        convertedFiles.forEach(file => {
+          const link = document.createElement("a");
           link.href = file.uri;
           link.download = file.name;
           link.click();
         });
-        Alert.alert('成功', '所有檔案已下載');
+        Alert.alert("成功", "所有檔案已下載");
       } else {
         const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('權限不足', '需要相簿權限才能儲存圖片');
+        if (status !== "granted") {
+          Alert.alert("權限不足", "需要相簿權限才能儲存圖片");
           return;
         }
 
         for (const file of convertedFiles) {
           const asset = await MediaLibrary.createAssetAsync(file.uri);
-          await MediaLibrary.createAlbumAsync('HEIC轉換', asset, false);
+          await MediaLibrary.createAlbumAsync("HEIC轉換", asset, false);
         }
-        Alert.alert('成功', `已儲存 ${convertedFiles.length} 張圖片到相簿`);
+        Alert.alert("成功", `已儲存 ${convertedFiles.length} 張圖片到相簿`);
       }
     } catch (error) {
-      console.error('批量儲存失敗:', error);
-      Alert.alert('錯誤', '批量儲存時發生錯誤');
+      console.error("批量儲存失敗:", error);
+      Alert.alert("錯誤", "批量儲存時發生錯誤");
     }
   };
 
@@ -160,23 +151,20 @@ export default function ResultsScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
-          title: '轉換結果',
-          headerBackTitle: '返回',
+          title: "轉換結果",
+          headerBackTitle: "返回",
           headerStyle: {
             backgroundColor: colors.primary,
           } as any,
           headerTintColor: colors.textInverse,
           headerShadowVisible: false,
-          headerTitleAlign: 'center',
+          headerTitleAlign: "center",
         }}
       />
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
+
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* 簡潔的完成狀態 */}
         <Card style={styles.summaryCard} variant="glass">
           <View style={styles.summaryHeader}>
@@ -184,41 +172,24 @@ export default function ResultsScreen() {
               <ThemedText style={styles.successIconText}>✓</ThemedText>
             </View>
             <View style={styles.summaryContent}>
-              <ThemedText style={[styles.summaryTitle, { color: colors.textPrimary }]}>
-                轉換完成
-              </ThemedText>
-              <ThemedText style={[styles.summarySubtitle, { color: colors.textSecondary }]}>
-                成功轉換 {convertedFiles.length} 個檔案
-              </ThemedText>
+              <ThemedText style={[styles.summaryTitle, { color: colors.textPrimary }]}>轉換完成</ThemedText>
+              <ThemedText style={[styles.summarySubtitle, { color: colors.textSecondary }]}>成功轉換 {convertedFiles.length} 個檔案</ThemedText>
             </View>
           </View>
 
           {/* 簡化的統計資訊 */}
           <View style={styles.statsContainer}>
             <View style={styles.statRow}>
-              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-                原始大小
-              </ThemedText>
-              <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>
-                {formatFileSize(totalOriginalSize)}
-              </ThemedText>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>原始大小</ThemedText>
+              <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>{formatFileSize(totalOriginalSize)}</ThemedText>
             </View>
             <View style={styles.statRow}>
-              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-                轉換後大小
-              </ThemedText>
-              <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>
-                {formatFileSize(totalConvertedSize)}
-              </ThemedText>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>轉換後大小</ThemedText>
+              <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>{formatFileSize(totalConvertedSize)}</ThemedText>
             </View>
             <View style={styles.statRow}>
-              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
-                節省空間
-              </ThemedText>
-              <ThemedText style={[
-                styles.statValue, 
-                { color: totalSavings > 0 ? colors.emerald : colors.coral }
-              ]}>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>節省空間</ThemedText>
+              <ThemedText style={[styles.statValue, { color: totalSavings > 0 ? colors.emerald : colors.coral }]}>
                 {getCompressionRatio(totalOriginalSize, totalConvertedSize)}
               </ThemedText>
             </View>
@@ -226,22 +197,8 @@ export default function ResultsScreen() {
 
           {/* 批量操作按鈕 */}
           <View style={styles.batchActions}>
-            <Button
-              title="全部儲存"
-              variant="primary"
-              size="small"
-              icon="💾"
-              onPress={handleSaveAll}
-              style={styles.batchButton}
-            />
-            <Button
-              title="全部分享"
-              variant="outline"
-              size="small"
-              icon="📤"
-              onPress={handleShareAll}
-              style={styles.batchButton}
-            />
+            <Button title="全部儲存" variant="primary" size="small" onPress={handleSaveAll} style={styles.batchButton} />
+            <Button title="全部分享" variant="primary" size="small" onPress={handleShareAll} style={styles.batchButton} />
           </View>
         </Card>
 
@@ -251,41 +208,27 @@ export default function ResultsScreen() {
             <Card key={index} style={styles.fileItem} variant="outlined">
               <View style={styles.fileHeader}>
                 <View style={styles.fileInfo}>
-                  <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>
-                    {file.name}
-                  </ThemedText>
+                  <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>{file.name}</ThemedText>
                   <ThemedText style={[styles.fileMeta, { color: colors.textTertiary }]}>
-                    {formatFileSize(file.originalSize)} → {formatFileSize(file.size)} 
-                    <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}>
-                      {' '}({getCompressionRatio(file.originalSize, file.size)})
-                    </ThemedText>
+                    {formatFileSize(file.originalSize)} → {formatFileSize(file.size)}
+                    <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}> ({getCompressionRatio(file.originalSize, file.size)})</ThemedText>
                   </ThemedText>
                 </View>
                 <View style={[styles.formatBadge, { backgroundColor: colors.primary }]}>
-                  <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>
-                    {file.format?.toUpperCase() || 'JPEG'}
-                  </ThemedText>
+                  <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>{file.format?.toUpperCase() || "JPEG"}</ThemedText>
                 </View>
               </View>
 
               {/* 操作按鈕 */}
               <View style={styles.actionButtons}>
                 <Button
-                  title={Platform.OS === 'web' ? '下載' : '儲存'}
+                  title={Platform.OS === "web" ? "下載" : "儲存"}
                   variant="primary"
                   size="small"
-                  icon="💾"
                   onPress={() => handleSaveToGallery(file.uri, file.name)}
                   style={styles.actionButton}
                 />
-                <Button
-                  title="分享"
-                  variant="outline"
-                  size="small"
-                  icon="📤"
-                  onPress={() => handleShare(file.uri, file.name)}
-                  style={styles.actionButton}
-                />
+                <Button title="分享" variant="primary" size="small" onPress={() => handleShare(file.uri, file.name)} style={styles.actionButton} />
               </View>
             </Card>
           ))}
@@ -293,14 +236,7 @@ export default function ResultsScreen() {
 
         {/* 返回按鈕 */}
         <View style={styles.backSection}>
-          <Button
-            title="返回首頁"
-            variant="outline"
-            size="large"
-            icon="🏠"
-            onPress={() => router.back()}
-            fullWidth
-          />
+          <Button title="返回首頁" variant="ghost" size="large" onPress={() => router.back()} fullWidth />
         </View>
       </ScrollView>
     </ThemedView>
@@ -316,7 +252,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
-  
+
   // 統計卡片
   summaryCard: {
     marginBottom: Spacing.lg,
@@ -324,22 +260,22 @@ const styles = StyleSheet.create({
     ...Shadows.lg,
   },
   summaryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: Spacing.lg,
   },
   successIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: Spacing.md,
   },
   successIconText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white",
   },
   summaryContent: {
     flex: 1,
@@ -351,37 +287,38 @@ const styles = StyleSheet.create({
   summarySubtitle: {
     ...Typography.body,
   },
-  
+
   // 統計容器
   statsContainer: {
     marginBottom: Spacing.lg,
   },
   statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomColor: "rgba(0, 0, 0, 0.05)",
   },
   statLabel: {
     ...Typography.body,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   statValue: {
     ...Typography.body,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-  
+
   // 批量操作
   batchActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.sm,
+    justifyContent: "space-between",
   },
   batchButton: {
-    flex: 1,
+    width: 140, // 固定寬度確保完全一致
   },
-  
+
   // 檔案列表
   filesContainer: {
     marginBottom: Spacing.lg,
@@ -391,9 +328,9 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   fileHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: Spacing.md,
   },
   fileInfo: {
@@ -416,18 +353,19 @@ const styles = StyleSheet.create({
   formatText: {
     ...Typography.caption,
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: "600",
   },
-  
+
   // 操作按鈕
   actionButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: Spacing.sm,
+    justifyContent: "space-between",
   },
   actionButton: {
-    flex: 1,
+    width: 100, // 固定寬度確保完全一致
   },
-  
+
   // 返回區域
   backSection: {
     marginTop: Spacing.lg,
