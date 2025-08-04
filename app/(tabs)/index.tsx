@@ -99,35 +99,6 @@ export default function HomeScreen() {
     setProgressValue(0);
   };
 
-  // 測試進度條功能
-  const handleTestProgress = async () => {
-    setIsConverting(true);
-    setProgressValue(0);
-    setConversionProgress('準備轉換...');
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // 模擬 3 個檔案的轉換過程
-    for (let i = 0; i < 3; i++) {
-      const progress = i / 3;
-      setProgressValue(progress);
-      setConversionProgress(`正在處理檔案 ${i + 1}/3...`);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const completedProgress = (i + 1) / 3;
-      setProgressValue(completedProgress);
-      setConversionProgress(`已完成 ${i + 1}/3 個檔案`);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    setProgressValue(1);
-    setConversionProgress('轉換完成！');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsConverting(false);
-    setConversionProgress('');
-    setProgressValue(0);
-  };
 
 
   const handleConvert = async () => {
@@ -438,18 +409,6 @@ export default function HomeScreen() {
             size="large"
           />
           
-          {/* 測試按鈕 - 可以直接看到全頁面進度條 */}
-          <View style={styles.testButtonSection}>
-            <Button
-              title="測試全頁面進度條"
-              icon="🧪"
-              onPress={handleTestProgress}
-              disabled={isConverting}
-              variant="outline"
-              fullWidth
-              size="medium"
-            />
-          </View>
         </View>
 
 
@@ -649,8 +608,5 @@ const styles = StyleSheet.create({
   convertSection: {
     marginTop: Spacing.sm,
     marginBottom: Spacing.lg,
-  },
-  testButtonSection: {
-    marginTop: Spacing.md,
   },
 });
