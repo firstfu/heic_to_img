@@ -40,15 +40,12 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack } from "expo-router";
 import React from "react";
-import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 export default function AboutScreen() {
   const isDark = useThemeColor({}, "background") === "#151718";
   const colors = isDark ? NewColors.dark : NewColors.light;
 
-  const handleOpenLink = (url: string) => {
-    Linking.openURL(url);
-  };
 
   return (
     <ThemedView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -118,19 +115,23 @@ export default function AboutScreen() {
 
           <View style={styles.techSection}>
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>支援的格式</ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>• 輸入格式：HEIC{"\n"}• 輸出格式：JPEG, PNG</ThemedText>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
+              輸入：HEIC{"\n"}輸出：JPEG, PNG
+            </ThemedText>
           </View>
 
           <View style={styles.techSection}>
             <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>品質設定</ThemedText>
             <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
-              • 60% - 適合網頁使用{"\n"}• 80% - 平衡品質與檔案大小{"\n"}• 90% - 高品質輸出{"\n"}• 100% - 無損品質
+              60% - 80% - 90% - 100%
             </ThemedText>
           </View>
 
           <View style={styles.techSection}>
-            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>檔案大小限制</ThemedText>
-            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>最大 50MB，支援批量選擇</ThemedText>
+            <ThemedText style={[styles.techSubtitle, { color: colors.textPrimary }]}>檔案限制</ThemedText>
+            <ThemedText style={[styles.techText, { color: colors.textTertiary }]}>
+              最大 50MB，支援批量選擇
+            </ThemedText>
           </View>
         </Card>
 
