@@ -8,7 +8,6 @@ import {
   Share,
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
 import { ThemedText } from '@/components/ThemedText';
@@ -16,7 +15,6 @@ import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
 
 interface ConvertedFile {
@@ -165,11 +163,13 @@ export default function ResultsScreen() {
       <Stack.Screen 
         options={{
           title: '轉換結果',
+          headerBackTitle: '返回',
           headerStyle: {
             backgroundColor: colors.primary,
           } as any,
           headerTintColor: colors.textInverse,
           headerShadowVisible: false,
+          headerTitleAlign: 'center',
         }}
       />
       
@@ -177,63 +177,43 @@ export default function ResultsScreen() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* 統計資訊 */}
-        <Card style={styles.summaryCard} variant="gradient">
+        {/* 簡潔的完成狀態 */}
+        <Card style={styles.summaryCard} variant="glass">
           <View style={styles.summaryHeader}>
-            <LinearGradient
-              colors={[colors.emerald, colors.neon]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.successIcon}
-            >
-              <ThemedText style={styles.successIconText}>✅</ThemedText>
-            </LinearGradient>
+            <View style={[styles.successIcon, { backgroundColor: colors.emerald }]}>
+              <ThemedText style={styles.successIconText}>✓</ThemedText>
+            </View>
             <View style={styles.summaryContent}>
               <ThemedText style={[styles.summaryTitle, { color: colors.textPrimary }]}>
                 轉換完成
               </ThemedText>
               <ThemedText style={[styles.summarySubtitle, { color: colors.textSecondary }]}>
-                成功轉換 {convertedFiles.length} 張圖片
+                成功轉換 {convertedFiles.length} 個檔案
               </ThemedText>
             </View>
-            <StatusBadge
-              status="success"
-              text={`${convertedFiles.length} 個檔案`}
-              icon="🎉"
-            />
           </View>
 
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <ThemedText style={[styles.statLabel, { color: colors.textTertiary }]}>
+          {/* 簡化的統計資訊 */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statRow}>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
                 原始大小
               </ThemedText>
               <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>
                 {formatFileSize(totalOriginalSize)}
               </ThemedText>
             </View>
-            <View style={styles.statItem}>
-              <ThemedText style={[styles.statLabel, { color: colors.textTertiary }]}>
+            <View style={styles.statRow}>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
                 轉換後大小
               </ThemedText>
               <ThemedText style={[styles.statValue, { color: colors.textPrimary }]}>
                 {formatFileSize(totalConvertedSize)}
               </ThemedText>
             </View>
-            <View style={styles.statItem}>
-              <ThemedText style={[styles.statLabel, { color: colors.textTertiary }]}>
+            <View style={styles.statRow}>
+              <ThemedText style={[styles.statLabel, { color: colors.textSecondary }]}>
                 節省空間
-              </ThemedText>
-              <ThemedText style={[
-                styles.statValue, 
-                { color: totalSavings > 0 ? colors.emerald : colors.coral }
-              ]}>
-                {totalSavings > 0 ? '-' : '+'}{formatFileSize(Math.abs(totalSavings))}
-              </ThemedText>
-            </View>
-            <View style={styles.statItem}>
-              <ThemedText style={[styles.statLabel, { color: colors.textTertiary }]}>
-                壓縮比例
               </ThemedText>
               <ThemedText style={[
                 styles.statValue, 
@@ -265,12 +245,8 @@ export default function ResultsScreen() {
           </View>
         </Card>
 
-        {/* 檔案列表 */}
+        {/* 簡潔的檔案列表 */}
         <View style={styles.filesContainer}>
-          <ThemedText style={[styles.filesTitle, { color: colors.textPrimary }]}>
-            轉換詳情
-          </ThemedText>
-          
           {convertedFiles.map((file, index) => (
             <Card key={index} style={styles.fileItem} variant="outlined">
               <View style={styles.fileHeader}>
@@ -278,62 +254,18 @@ export default function ResultsScreen() {
                   <ThemedText style={[styles.fileName, { color: colors.textPrimary }]}>
                     {file.name}
                   </ThemedText>
-                  <ThemedText style={[styles.originalName, { color: colors.textTertiary }]}>
-                    來源: {file.originalName}
+                  <ThemedText style={[styles.fileMeta, { color: colors.textTertiary }]}>
+                    {formatFileSize(file.originalSize)} → {formatFileSize(file.size)} 
+                    <ThemedText style={{ color: file.originalSize > file.size ? colors.emerald : colors.coral }}>
+                      {' '}({getCompressionRatio(file.originalSize, file.size)})
+                    </ThemedText>
                   </ThemedText>
                 </View>
-                <StatusBadge
-                  status="success"
-                  text={file.format?.toUpperCase() || 'JPEG'}
-                  size="small"
-                />
-              </View>
-
-              {/* 檔案大小比較 */}
-              <View style={styles.sizeComparison}>
-                <View style={styles.sizeItem}>
-                  <ThemedText style={[styles.sizeLabel, { color: colors.textSecondary }]}>
-                    轉換前
-                  </ThemedText>
-                  <ThemedText style={[styles.sizeValue, { color: colors.textPrimary }]}>
-                    {formatFileSize(file.originalSize)}
+                <View style={[styles.formatBadge, { backgroundColor: colors.primary }]}>
+                  <ThemedText style={[styles.formatText, { color: colors.textInverse }]}>
+                    {file.format?.toUpperCase() || 'JPEG'}
                   </ThemedText>
                 </View>
-                
-                <View style={styles.arrow}>
-                  <ThemedText style={[styles.arrowText, { color: colors.primary }]}>
-                    →
-                  </ThemedText>
-                </View>
-                
-                <View style={styles.sizeItem}>
-                  <ThemedText style={[styles.sizeLabel, { color: colors.textSecondary }]}>
-                    轉換後
-                  </ThemedText>
-                  <ThemedText style={[styles.sizeValue, { color: colors.textPrimary }]}>
-                    {formatFileSize(file.size)}
-                  </ThemedText>
-                </View>
-                
-                <View style={styles.sizeItem}>
-                  <ThemedText style={[styles.sizeLabel, { color: colors.textSecondary }]}>
-                    變化
-                  </ThemedText>
-                  <ThemedText style={[
-                    styles.sizeValue, 
-                    { color: file.originalSize > file.size ? colors.emerald : colors.coral }
-                  ]}>
-                    {getCompressionRatio(file.originalSize, file.size)}
-                  </ThemedText>
-                </View>
-              </View>
-
-              {/* 其他資訊 */}
-              <View style={styles.metaInfo}>
-                <ThemedText style={[styles.metaText, { color: colors.textSecondary }]}>
-                  品質: {Math.round(file.quality * 100)}% • 
-                  轉換時間: {new Date(file.convertedAt).toLocaleTimeString()}
-                </ThemedText>
               </View>
 
               {/* 操作按鈕 */}
@@ -397,16 +329,17 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   successIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.lg,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
-    ...Shadows.glow,
   },
   successIconText: {
     fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
   },
   summaryContent: {
     flex: 1,
@@ -419,29 +352,25 @@ const styles = StyleSheet.create({
     ...Typography.body,
   },
   
-  // 統計網格
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
+  // 統計容器
+  statsContainer: {
     marginBottom: Spacing.lg,
   },
-  statItem: {
-    flex: 1,
-    minWidth: '45%',
+  statRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   statLabel: {
-    ...Typography.caption,
-    fontSize: 11,
-    marginBottom: 4,
-    textAlign: 'center',
+    ...Typography.body,
+    fontWeight: '500',
   },
   statValue: {
-    ...Typography.labelLarge,
+    ...Typography.body,
     fontWeight: '600',
-    textAlign: 'center',
   },
   
   // 批量操作
@@ -457,12 +386,8 @@ const styles = StyleSheet.create({
   filesContainer: {
     marginBottom: Spacing.lg,
   },
-  filesTitle: {
-    ...Typography.h5,
-    marginBottom: Spacing.md,
-  },
   fileItem: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
     padding: Spacing.md,
   },
   fileHeader: {
@@ -479,46 +404,19 @@ const styles = StyleSheet.create({
     ...Typography.labelLarge,
     marginBottom: 4,
   },
-  originalName: {
+  fileMeta: {
     ...Typography.caption,
+    lineHeight: 16,
   },
-  
-  // 大小比較
-  sizeComparison: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.md,
+  formatBadge: {
     paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
   },
-  sizeItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  sizeLabel: {
+  formatText: {
     ...Typography.caption,
     fontSize: 10,
-    marginBottom: 4,
-  },
-  sizeValue: {
-    ...Typography.labelMedium,
     fontWeight: '600',
-  },
-  arrow: {
-    paddingHorizontal: Spacing.sm,
-  },
-  arrowText: {
-    ...Typography.h5,
-    fontWeight: '600',
-  },
-  
-  // 元資訊
-  metaInfo: {
-    marginBottom: Spacing.md,
-  },
-  metaText: {
-    ...Typography.caption,
-    textAlign: 'center',
   },
   
   // 操作按鈕
