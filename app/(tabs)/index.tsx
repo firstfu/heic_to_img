@@ -45,6 +45,7 @@ import { BorderRadius, NewColors, Shadows, Spacing, Typography } from "@/constan
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { apiService } from "@/services/ApiService";
 import { ConvertFileRequest, OutputFormat } from "@/types/Api";
+import { useConversion } from "@/contexts/ConversionContext";
 import Slider from "@react-native-community/slider";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -58,6 +59,7 @@ export default function HomeScreen() {
   const [outputFormat, setOutputFormat] = useState<"jpeg" | "png">("jpeg");
 
   const router = useRouter();
+  const { setConvertedFiles } = useConversion();
   const isDark = useThemeColor({}, "background") === "#151718";
   const colors = isDark ? NewColors.dark : NewColors.light;
   const [progressValue, setProgressValue] = useState(0);
@@ -223,23 +225,18 @@ export default function HomeScreen() {
             {
               text: "查看結果",
               onPress: () => {
-                router.push({
-                  pathname: "/results",
-                  params: {
-                    files: JSON.stringify(converted),
-                  },
-                });
+                setConvertedFiles(converted);
+                router.push("/results");
               },
             },
           ]);
         } else {
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>全部成功");
           // 全部成功
-          router.push({
-            pathname: "/results",
-            params: {
-              files: JSON.stringify(converted),
-            },
-          });
+          // 使用 Context 儲存轉換結果
+          setConvertedFiles(converted);
+          // 直接跳轉到結果頁面，不帶參數
+          router.push("/results");
         }
       } else {
         // 全部失敗

@@ -46,31 +46,32 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { BorderRadius, NewColors, Shadows, Spacing, Typography } from "@/constants/NewColors";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useConversion } from "@/contexts/ConversionContext";
 import * as MediaLibrary from "expo-media-library";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import { Stack, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React from "react";
 import { Alert, Platform, ScrollView, Share, StyleSheet, View } from "react-native";
 
-interface ConvertedFile {
-  name: string;
-  originalName: string;
-  uri: string;
-  size: number;
-  originalSize: number;
-  convertedAt: string;
-  quality: number;
-  format: string;
-}
-
 export default function ResultsScreen() {
-  const { files } = useLocalSearchParams();
   const router = useRouter();
+  const { convertedFiles, clearConvertedFiles } = useConversion();
   const isDark = useThemeColor({}, "background") === "#151718";
   const colors = isDark ? NewColors.dark : NewColors.light;
 
-  // 解析傳入的檔案資料
-  const convertedFiles: ConvertedFile[] = files ? JSON.parse(files as string) : [];
+  // 從 Context 獲取轉換後的檔案
+  // 如果沒有檔案，顯示提示並返回首頁
+  React.useEffect(() => {
+    if (!convertedFiles || convertedFiles.length === 0) {
+      Alert.alert("提示", "沒有轉換結果", [
+        {
+          text: "確定",
+          onPress: () => router.replace("/(tabs)"),
+        },
+      ]);
+    }
+  }, [convertedFiles, router]);
 
   // 根據檔案格式獲取對應的顏色
   const getFormatColor = (format: string): string => {
@@ -98,6 +99,49 @@ export default function ResultsScreen() {
     return ratio > 0 ? `-${ratio.toFixed(1)}%` : `+${Math.abs(ratio).toFixed(1)}%`;
   };
 
+  // 將 base64 data URL 轉換為檔案
+  const saveBase64ToFile = async (dataUrl: string, fileName: string): Promise<string | null> => {
+    try {
+      // 檢查是否為 data URL
+      if (!dataUrl.startsWith('data:')) {
+        // 如果已經是檔案路徑，直接返回
+        return dataUrl;
+      }
+
+      // 提取 base64 數據
+      const base64Data = dataUrl.split(',')[1];
+      if (!base64Data) {
+        console.error('無效的 data URL');
+        return null;
+      }
+
+      // 確保檔案名有正確的擴展名
+      let finalFileName = fileName;
+      if (!fileName.match(/\.(jpg|jpeg|png)$/i)) {
+        // 根據 MIME 類型判斷擴展名
+        const mimeMatch = dataUrl.match(/data:image\/(jpeg|jpg|png)/i);
+        const extension = mimeMatch ? mimeMatch[1].toLowerCase() : 'jpg';
+        finalFileName = `${fileName}.${extension === 'jpeg' ? 'jpg' : extension}`;
+      }
+
+      // 創建臨時檔案路徑
+      const tempDir = FileSystem.cacheDirectory;
+      const tempFilePath = `${tempDir}${finalFileName}`;
+
+      console.log(`保存檔案到: ${tempFilePath}`);
+
+      // 將 base64 寫入檔案
+      await FileSystem.writeAsStringAsync(tempFilePath, base64Data, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return tempFilePath;
+    } catch (error) {
+      console.error('保存 base64 到檔案失敗:', error);
+      return null;
+    }
+  };
+
   const handleShare = async (fileUri: string, fileName: string) => {
     try {
       if (Platform.OS === "web") {
@@ -106,9 +150,16 @@ export default function ResultsScreen() {
         link.download = fileName;
         link.click();
       } else {
+        // 將 base64 轉換為實際檔案
+        const filePath = await saveBase64ToFile(fileUri, fileName);
+        if (!filePath) {
+          Alert.alert("錯誤", "無法準備檔案進行分享");
+          return;
+        }
+
         const isAvailable = await Sharing.isAvailableAsync();
         if (isAvailable) {
-          await Sharing.shareAsync(fileUri, {
+          await Sharing.shareAsync(filePath, {
             mimeType: fileName.endsWith(".png") ? "image/png" : "image/jpeg",
             dialogTitle: "分享圖片",
           });
@@ -137,7 +188,15 @@ export default function ResultsScreen() {
           return;
         }
 
-        const asset = await MediaLibrary.createAssetAsync(fileUri);
+        // 將 base64 轉換為實際檔案
+        const filePath = await saveBase64ToFile(fileUri, fileName);
+        if (!filePath) {
+          Alert.alert("錯誤", "無法準備檔案進行儲存");
+          return;
+        }
+
+        console.log(`準備儲存到相簿: ${filePath}`);
+        const asset = await MediaLibrary.createAssetAsync(filePath);
         await MediaLibrary.createAlbumAsync("HEIC轉換", asset, false);
         Alert.alert("成功", "圖片已儲存到相簿");
       }
@@ -188,11 +247,26 @@ export default function ResultsScreen() {
           return;
         }
 
+        let savedCount = 0;
         for (const file of convertedFiles) {
-          const asset = await MediaLibrary.createAssetAsync(file.uri);
-          await MediaLibrary.createAlbumAsync("HEIC轉換", asset, false);
+          // 將 base64 轉換為實際檔案
+          const filePath = await saveBase64ToFile(file.uri, file.name);
+          if (filePath) {
+            try {
+              const asset = await MediaLibrary.createAssetAsync(filePath);
+              await MediaLibrary.createAlbumAsync("HEIC轉換", asset, false);
+              savedCount++;
+            } catch (err) {
+              console.error(`無法儲存 ${file.name}:`, err);
+            }
+          }
         }
-        Alert.alert("成功", `已儲存 ${convertedFiles.length} 張圖片到相簿`);
+        
+        if (savedCount > 0) {
+          Alert.alert("成功", `已儲存 ${savedCount} 張圖片到相簿`);
+        } else {
+          Alert.alert("錯誤", "無法儲存任何圖片");
+        }
       }
     } catch (error) {
       console.error("批量儲存失敗:", error);
@@ -300,7 +374,12 @@ export default function ResultsScreen() {
             title="返回首頁" 
             variant="primary" 
             size="large" 
-            onPress={() => router.back()} 
+            onPress={() => {
+              // 清理 Context 中的轉換結果
+              clearConvertedFiles();
+              // 返回首頁
+              router.back();
+            }} 
             fullWidth 
           />
         </View>
