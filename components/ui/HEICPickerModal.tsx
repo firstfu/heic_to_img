@@ -356,11 +356,11 @@ export function HEICPickerModal({
         {/* 底部操作欄 */}
         <View style={[styles.footer, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
-            style={[styles.footerButton, styles.cancelButton, { backgroundColor: colors.background }]}
+            style={[styles.footerButton, styles.cancelButton, { backgroundColor: colors.background, borderColor: colors.primary }]}
             onPress={handleCancel}
             activeOpacity={0.8}
           >
-            <ThemedText style={[styles.cancelButtonText, { color: colors.textSecondary }]}>
+            <ThemedText style={[styles.cancelButtonText, { color: colors.primary }]}>
               取消
             </ThemedText>
           </TouchableOpacity>
