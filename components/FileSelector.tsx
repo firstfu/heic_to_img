@@ -147,7 +147,7 @@ export function FileSelector({
   const handleSelectFiles = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['image/heic', 'image/heif', 'image/*'],
+        type: ['image/heic', 'image/heif'],
         multiple: true,
         copyToCacheDirectory: true,
       });
