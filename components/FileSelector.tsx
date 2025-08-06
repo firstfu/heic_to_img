@@ -147,8 +147,16 @@ export function FileSelector({ selectedFiles, onFilesSelected, onClearFiles, dis
           return;
         }
 
-        onFilesSelected(heicFiles);
-        Alert.alert("成功", `已選擇 ${heicFiles.length} 個 HEIC 檔案`);
+        // DocumentPicker 應該包含 size 屬性，但如果沒有，預設為 0
+        const filesWithSize = heicFiles.map(file => ({
+          ...file,
+          size: file.size || 0
+        }));
+
+        console.log("選擇的檔案:", filesWithSize.map(f => ({ name: f.name, size: f.size })));
+
+        onFilesSelected(filesWithSize);
+        Alert.alert("成功", `已選擇 ${filesWithSize.length} 個 HEIC 檔案`);
       }
     } catch (error) {
       console.error("選擇檔案時發生錯誤:", error);

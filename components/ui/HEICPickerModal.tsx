@@ -14,6 +14,7 @@ import { NewColors, Spacing, Typography } from "@/constants/NewColors";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Image } from "expo-image";
 import * as MediaLibrary from "expo-media-library";
+import * as FileSystem from "expo-file-system";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Dimensions, FlatList, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -198,20 +199,35 @@ export function HEICPickerModal({ visible, onClose, onSelectionComplete, initial
     setSelectedAssets(newSelection);
   };
 
-  const handleConfirmSelection = () => {
-    const selectedFiles = heicAssets
-      .filter(asset => selectedAssets.has(asset.id))
-      .map(asset => ({
-        name: asset.filename,
-        uri: asset.uri,
-        size: 0,
-        mimeType: "image/heic",
-      }));
-
-    if (selectedFiles.length === 0) {
+  const handleConfirmSelection = async () => {
+    const selectedHEICAssets = heicAssets.filter(asset => selectedAssets.has(asset.id));
+    
+    if (selectedHEICAssets.length === 0) {
       Alert.alert("提示", "請至少選擇一張 HEIC 圖片");
       return;
     }
+
+    // 獲取每個檔案的實際大小
+    const selectedFiles = await Promise.all(
+      selectedHEICAssets.map(async (asset) => {
+        let fileSize = 0;
+        try {
+          const fileInfo = await FileSystem.getInfoAsync(asset.uri);
+          if (fileInfo.exists && 'size' in fileInfo) {
+            fileSize = fileInfo.size;
+          }
+        } catch (error) {
+          console.warn(`無法獲取檔案大小: ${asset.filename}`, error);
+        }
+        
+        return {
+          name: asset.filename,
+          uri: asset.uri,
+          size: fileSize,
+          mimeType: "image/heic",
+        };
+      })
+    );
 
     onSelectionComplete(selectedFiles);
     setSelectedAssets(new Set());
