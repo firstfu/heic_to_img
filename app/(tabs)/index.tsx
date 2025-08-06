@@ -143,8 +143,8 @@ export default function HomeScreen() {
     setProgressValue(0);
     setConversionProgress("準備轉換...");
 
-    // 初始延遲讓用戶看到進度條啟動
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 縮短初始延遲
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // 檢查 API 服務是否可用
     setConversionProgress("檢查服務狀態...");
@@ -169,8 +169,8 @@ export default function HomeScreen() {
         setProgressValue(progress);
         setConversionProgress(`正在處理 ${file.name}...`);
 
-        // 小延遲讓用戶看到進度更新
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // 移除不必要的延遲
+        // await new Promise(resolve => setTimeout(resolve, 200));
 
         try {
           const convertResult = await convertHeicToJpg(file);
@@ -200,15 +200,13 @@ export default function HomeScreen() {
         const completedProgress = (i + 1) / selectedFiles.length;
         setProgressValue(completedProgress);
         setConversionProgress(`已完成 ${i + 1}/${selectedFiles.length} 個檔案`);
-
-        // 轉換完成延遲
-        await new Promise(resolve => setTimeout(resolve, 300));
       }
 
       // 最終完成狀態
       setProgressValue(1);
       setConversionProgress("轉換完成！正在準備結果...");
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // 縮短最終延遲時間
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       // 根據轉換結果顯示不同訊息
       if (converted.length > 0) {
