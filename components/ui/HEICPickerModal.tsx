@@ -28,7 +28,9 @@ import * as MediaLibrary from 'expo-media-library';
 import { Image } from 'expo-image';
 
 const { width: screenWidth } = Dimensions.get('window');
-const ITEM_SIZE = (screenWidth - Spacing.xl * 2 - Spacing.md * 2) / 3;
+const GAP_SIZE = 2; // 圖片間隔 2px
+const PADDING = 4; // 左右邊距 4px
+const ITEM_SIZE = (screenWidth - PADDING * 2 - GAP_SIZE * 2) / 3;
 
 interface HEICAsset {
   id: string;
@@ -419,8 +421,8 @@ const styles = StyleSheet.create({
   assetsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: Spacing.md,
-    gap: Spacing.sm,
+    padding: PADDING,
+    gap: GAP_SIZE,
   },
   
   assetItem: {
@@ -487,11 +489,13 @@ const styles = StyleSheet.create({
   
   row: {
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: PADDING,
+    gap: GAP_SIZE,
   },
   
   flatListContent: {
     paddingBottom: Spacing.lg,
+    paddingTop: PADDING,
   },
   
   loadingMoreContainer: {
