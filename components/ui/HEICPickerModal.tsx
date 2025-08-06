@@ -21,9 +21,8 @@ import {
   FlatList,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { NewColors, Typography, Spacing, BorderRadius } from '@/constants/NewColors';
+import { NewColors, Typography, Spacing } from '@/constants/NewColors';
 import * as MediaLibrary from 'expo-media-library';
 import { Image } from 'expo-image';
 
@@ -281,12 +280,28 @@ export function HEICPickerModal({
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* 標題欄 */}
         <View style={[styles.header, { backgroundColor: colors.surface }]}>
-          <ThemedText style={[styles.title, { color: colors.textPrimary }]}>
-            選擇 HEIC 圖片
-          </ThemedText>
-          <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {selectedAssets.size > 0 && `已選擇 ${selectedAssets.size} 張`}
-          </ThemedText>
+          <View style={styles.headerContent}>
+            <View style={[styles.headerIcon, { backgroundColor: colors.primary + '20' }]}>
+              <ThemedText style={[styles.headerIconText, { color: colors.primary }]}>📸</ThemedText>
+            </View>
+            <View style={styles.headerTextContainer}>
+              <ThemedText style={[styles.title, { color: colors.textPrimary }]}>
+                選擇 HEIC 圖片
+              </ThemedText>
+              {selectedAssets.size > 0 && (
+                <View style={[styles.selectionBadgeContainer, { backgroundColor: colors.primary }]}>
+                  <ThemedText style={styles.selectionBadgeText}>
+                    {selectedAssets.size}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+          </View>
+          {selectedAssets.size > 0 && (
+            <ThemedText style={[styles.subtitle, { color: colors.textSecondary }]}>
+              已選擇 {selectedAssets.size} 張圖片
+            </ThemedText>
+          )}
         </View>
 
         {/* 內容區域 */}
@@ -340,19 +355,38 @@ export function HEICPickerModal({
 
         {/* 底部操作欄 */}
         <View style={[styles.footer, { backgroundColor: colors.surface }]}>
-          <Button
-            title="取消"
-            variant="ghost"
+          <TouchableOpacity
+            style={[styles.footerButton, styles.cancelButton, { backgroundColor: colors.background }]}
             onPress={handleCancel}
-            style={styles.footerButton}
-          />
-          <Button
-            title={`確認選擇 (${selectedAssets.size})`}
-            variant="primary"
+            activeOpacity={0.8}
+          >
+            <ThemedText style={[styles.cancelButtonText, { color: colors.textSecondary }]}>
+              取消
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.footerButton,
+              styles.confirmButton,
+              { backgroundColor: selectedAssets.size === 0 ? colors.textTertiary : colors.primary },
+            ]}
             onPress={handleConfirmSelection}
             disabled={selectedAssets.size === 0}
-            style={styles.footerButton}
-          />
+            activeOpacity={0.8}
+          >
+            <View style={styles.confirmButtonContent}>
+              <ThemedText style={[styles.confirmButtonText, { color: colors.background }]}>
+                確認選擇
+              </ThemedText>
+              {selectedAssets.size > 0 && (
+                <View style={[styles.confirmBadge, { backgroundColor: colors.background + '30' }]}>
+                  <ThemedText style={[styles.confirmBadgeText, { color: colors.background }]}>
+                    {selectedAssets.size}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -367,18 +401,57 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 60,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  
+  headerIconText: {
+    fontSize: 24,
+  },
+  
+  headerTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  
   title: {
     ...Typography.h5,
-    marginBottom: Spacing.xs,
+    fontWeight: '700',
+  },
+  
+  selectionBadgeContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  
+  selectionBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   
   subtitle: {
     ...Typography.body,
+    marginLeft: 48 + Spacing.md,
   },
   
   content: {
@@ -485,6 +558,53 @@ const styles = StyleSheet.create({
   
   footerButton: {
     flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  cancelButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  
+  confirmButton: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  
+  confirmButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  
+  confirmBadge: {
+    minWidth: 24,
+    height: 24,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  confirmBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   
   row: {
