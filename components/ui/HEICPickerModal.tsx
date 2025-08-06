@@ -9,16 +9,16 @@
  * - 整合完整的錯誤處理和載入狀態
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
   Modal,
   TouchableOpacity,
-  ScrollView,
   Alert,
   ActivityIndicator,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
@@ -57,14 +57,24 @@ export function HEICPickerModal({
   const [heicAssets, setHeicAssets] = useState<HEICAsset[]>(initialAssets);
   const [selectedAssets, setSelectedAssets] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [endCursor, setEndCursor] = useState<string | undefined>(undefined);
 
-  // 載入 HEIC 資產
+  // 初始載入 HEIC 資產
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) {
+      // 重置狀態
+      setHeicAssets([]);
+      setSelectedAssets(new Set());
+      setEndCursor(undefined);
+      setHasMore(true);
+      return;
+    }
 
-    const loadHEICAssets = async () => {
+    const loadInitialAssets = async () => {
       setIsLoading(true);
-      setHeicAssets([]); // 清空舊資料
+      setHeicAssets([]);
       
       try {
         console.log('📱 開始載入 HEIC 資產...');
@@ -75,14 +85,14 @@ export function HEICPickerModal({
           return;
         }
 
-        // 快速載入策略
+        // 初始載入 - 只載入前 3 批
         const heicList: HEICAsset[] = [];
         const processedIds = new Set<string>();
         let after: string | undefined = undefined;
         let totalBatches = 0;
-        const maxBatches = 10; // 最多載入 10 批
+        const initialBatches = 3; // 初始載入 3 批
         
-        while (totalBatches < maxBatches) {
+        while (totalBatches < initialBatches) {
           const assets = await MediaLibrary.getAssetsAsync({
             mediaType: ['photo'],
             first: 200, // 每批載入 200 張
@@ -90,9 +100,10 @@ export function HEICPickerModal({
             sortBy: [MediaLibrary.SortBy.creationTime],
           });
 
-          console.log(`📊 第 ${totalBatches + 1} 批: 載入 ${assets.assets.length} 張照片`);
+          console.log(`📊 初始第 ${totalBatches + 1} 批: 載入 ${assets.assets.length} 張照片`);
 
           if (assets.assets.length === 0) {
+            setHasMore(false);
             break;
           }
 
@@ -110,27 +121,21 @@ export function HEICPickerModal({
                 width: asset.width,
                 height: asset.height,
               });
-              console.log('🎯 找到 HEIC:', filename);
             }
-          }
-
-          // 如果已經找到足夠多的 HEIC 圖片，先顯示
-          if (heicList.length >= 20 && totalBatches === 0) {
-            console.log('📋 先顯示前 20 張 HEIC');
-            setHeicAssets([...heicList]);
-            setIsLoading(false);
           }
 
           if (assets.hasNextPage && assets.endCursor) {
             after = assets.endCursor;
             totalBatches++;
           } else {
+            setHasMore(false);
             break;
           }
         }
 
-        console.log(`✅ 載入完成，總共找到 ${heicList.length} 個 HEIC 圖片`);
+        console.log(`✅ 初始載入完成，找到 ${heicList.length} 個 HEIC 圖片`);
         setHeicAssets(heicList);
+        setEndCursor(after);
       } catch (error) {
         console.error('Failed to load HEIC assets:', error);
         Alert.alert('錯誤', '載入 HEIC 圖片時發生錯誤');
@@ -139,8 +144,67 @@ export function HEICPickerModal({
       }
     };
 
-    loadHEICAssets();
+    loadInitialAssets();
   }, [visible, onClose]);
+
+  // 載入更多 HEIC 資產
+  const loadMoreAssets = useCallback(async () => {
+    if (isLoadingMore || !hasMore || !endCursor) return;
+
+    setIsLoadingMore(true);
+    
+    try {
+      console.log('📋 載入更多 HEIC 圖片...');
+      
+      const assets = await MediaLibrary.getAssetsAsync({
+        mediaType: ['photo'],
+        first: 200,
+        after: endCursor,
+        sortBy: [MediaLibrary.SortBy.creationTime],
+      });
+
+      console.log(`📊 載入更多: ${assets.assets.length} 張照片`);
+
+      if (assets.assets.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      const newHeicAssets: HEICAsset[] = [];
+      const existingIds = new Set(heicAssets.map(a => a.id));
+
+      // 過濾出新的 HEIC 圖片
+      for (const asset of assets.assets) {
+        const filename = asset.filename || asset.uri.split('/').pop() || '';
+        
+        if ((filename.toLowerCase().includes('.heic') || filename.toLowerCase().includes('.heif')) 
+            && !existingIds.has(asset.id)) {
+          newHeicAssets.push({
+            id: asset.id,
+            uri: asset.uri,
+            filename: filename,
+            width: asset.width,
+            height: asset.height,
+          });
+        }
+      }
+
+      if (newHeicAssets.length > 0) {
+        console.log(`🎯 找到 ${newHeicAssets.length} 個新的 HEIC 圖片`);
+        setHeicAssets(prev => [...prev, ...newHeicAssets]);
+      }
+
+      if (assets.hasNextPage && assets.endCursor) {
+        setEndCursor(assets.endCursor);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Failed to load more assets:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, endCursor, heicAssets]);
 
   const toggleAssetSelection = (assetId: string) => {
     const newSelection = new Set(selectedAssets);
@@ -242,13 +306,33 @@ export function HEICPickerModal({
               </ThemedText>
             </View>
           ) : (
-            <ScrollView
-              style={styles.scrollContainer}
-              contentContainerStyle={styles.assetsGrid}
+            <FlatList
+              data={heicAssets}
+              renderItem={({ item }) => renderAssetItem(item)}
+              keyExtractor={(item) => item.id}
+              numColumns={3}
+              columnWrapperStyle={styles.row}
+              contentContainerStyle={styles.flatListContent}
               showsVerticalScrollIndicator={false}
-            >
-              {heicAssets.map(renderAssetItem)}
-            </ScrollView>
+              onEndReached={loadMoreAssets}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={() => (
+                isLoadingMore ? (
+                  <View style={styles.loadingMoreContainer}>
+                    <ActivityIndicator size="small" color={colors.primary} />
+                    <ThemedText style={[styles.loadingMoreText, { color: colors.textSecondary }]}>
+                      正在載入更多 HEIC 圖片...
+                    </ThemedText>
+                  </View>
+                ) : !hasMore && heicAssets.length > 0 ? (
+                  <View style={styles.endContainer}>
+                    <ThemedText style={[styles.endText, { color: colors.textTertiary }]}>
+                      已載入所有 HEIC 圖片
+                    </ThemedText>
+                  </View>
+                ) : null
+              )}
+            />
           )}
         </View>
 
@@ -399,5 +483,36 @@ const styles = StyleSheet.create({
   
   footerButton: {
     flex: 1,
+  },
+  
+  row: {
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+  },
+  
+  flatListContent: {
+    paddingBottom: Spacing.lg,
+  },
+  
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  
+  loadingMoreText: {
+    ...Typography.body,
+  },
+  
+  endContainer: {
+    alignItems: 'center',
+    padding: Spacing.lg,
+  },
+  
+  endText: {
+    ...Typography.body,
+    fontStyle: 'italic',
   },
 });
