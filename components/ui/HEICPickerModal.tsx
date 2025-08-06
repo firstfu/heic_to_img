@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   assetItem: {
     width: ITEM_SIZE,
     height: ITEM_SIZE,
-    borderRadius: BorderRadius.md,
+    borderRadius: 0,
     overflow: 'hidden',
     position: 'relative',
   },
