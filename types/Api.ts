@@ -29,6 +29,7 @@ export interface ConversionResponse {
   original_size: number;
   converted_size: number;
   data?: string; // Base64 編碼的檔案資料 (當需要時)
+  data_url?: string; // 新增 base64 data URL 欄位
 }
 
 /**
