@@ -60,11 +60,28 @@ export function HEICPickerModal({
 
   // 載入 HEIC 資產
   useEffect(() => {
-    if (!visible || initialAssets.length > 0) return;
+    if (!visible) return;
 
+    if (initialAssets.length > 0) {
+      // 使用傳入的資產
+      console.log('🎯 使用傳入的 HEIC 資產:', initialAssets.length);
+      const convertedAssets: HEICAsset[] = initialAssets.map(asset => ({
+        id: asset.id || asset.uri,
+        uri: asset.uri,
+        filename: asset.filename || asset.uri.split('/').pop() || 'image.heic',
+        width: asset.width || 300,
+        height: asset.height || 400,
+      }));
+      setHeicAssets(convertedAssets);
+      setIsLoading(false);
+      return;
+    }
+
+    // 如果沒有傳入資產，自行載入
     const loadHEICAssets = async () => {
       setIsLoading(true);
       try {
+        console.log('📱 開始自行載入 HEIC 資產...');
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status !== 'granted') {
           Alert.alert('權限不足', '需要相簿權限才能載入圖片');
@@ -74,7 +91,7 @@ export function HEICPickerModal({
 
         const assets = await MediaLibrary.getAssetsAsync({
           mediaType: ['photo'],
-          first: 1000,
+          first: 100,
           sortBy: [MediaLibrary.SortBy.creationTime],
         });
 
@@ -98,6 +115,7 @@ export function HEICPickerModal({
           }
         }
 
+        console.log('✅ 自行載入完成，找到 HEIC 圖片數量:', heicList.length);
         setHeicAssets(heicList);
       } catch (error) {
         console.error('Failed to load HEIC assets:', error);
@@ -108,7 +126,7 @@ export function HEICPickerModal({
     };
 
     loadHEICAssets();
-  }, [visible, initialAssets.length, onClose]);
+  }, [visible, initialAssets, onClose]);
 
   const toggleAssetSelection = (assetId: string) => {
     const newSelection = new Set(selectedAssets);
