@@ -66,10 +66,12 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { HEICPickerModal } from '@/components/ui/HEICPickerModal';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { NewColors, Typography, Spacing, BorderRadius, Shadows } from '@/constants/NewColors';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 
 interface FileSelectorProps {
   selectedFiles: any[];
@@ -89,10 +91,10 @@ export function FileSelector({
   const isDark = useThemeColor({}, 'background') === '#151718';
   const colors = isDark ? NewColors.dark : NewColors.light;
   
-  const [photoHover, setPhotoHover] = useState(false);
-  const [fileHover, setFileHover] = useState(false);
   const [scaleAnimPhoto] = useState(new Animated.Value(1));
   const [scaleAnimFile] = useState(new Animated.Value(1));
+  const [showHEICModal, setShowHEICModal] = useState(false);
+  const [heicAssets, setHeicAssets] = useState<any[]>([]);
 
   const animatePress = (scaleAnim: Animated.Value, action: () => void) => {
     Animated.sequence([
@@ -112,35 +114,75 @@ export function FileSelector({
 
   const handleSelectFromPhotos = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      // 請求相簿權限
+      const { status: imagePickerStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status: mediaLibraryStatus } = await MediaLibrary.requestPermissionsAsync();
       
-      if (status !== 'granted') {
+      if (imagePickerStatus !== 'granted' || mediaLibraryStatus !== 'granted') {
         Alert.alert('權限不足', '需要相簿權限才能選擇照片');
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
-        quality: 1,
+      // 使用 MediaLibrary 查詢所有照片
+      const assets = await MediaLibrary.getAssetsAsync({
+        mediaType: ['photo'],
+        first: 1000, // 限制查詢數量
       });
 
-      if (!result.canceled && result.assets) {
-        // 將 ImagePicker 的結果轉換為統一格式
-        const files = result.assets.map(asset => ({
-          name: asset.uri.split('/').pop() || 'image.heic',
+      // 過濾出 HEIC 格式的圖片
+      const heicAssets = [];
+      for (const asset of assets.assets) {
+        const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
+        
+        // 檢查檔案名稱或 URI 是否包含 HEIC 格式
+        const filename = assetInfo.filename || assetInfo.uri.split('/').pop() || '';
+        const isHeic = filename.toLowerCase().includes('.heic') || 
+                      filename.toLowerCase().includes('.heif') ||
+                      assetInfo.uri.toLowerCase().includes('.heic') ||
+                      assetInfo.uri.toLowerCase().includes('.heif');
+        
+        if (isHeic) {
+          heicAssets.push(assetInfo);
+        }
+      }
+
+      if (heicAssets.length === 0) {
+        Alert.alert('沒有找到 HEIC 格式的照片', '您的相簿中沒有 HEIC 格式的照片');
+        return;
+      }
+
+      // 如果只有少數 HEIC 圖片，直接全選
+      if (heicAssets.length <= 5) {
+        const files = heicAssets.map(asset => ({
+          name: asset.filename || asset.uri.split('/').pop() || 'image.heic',
           uri: asset.uri,
-          size: 0, // ImagePicker 不提供檔案大小
+          size: 0,
           mimeType: 'image/heic',
         }));
 
         onFilesSelected(files);
-        Alert.alert('成功', `已選擇 ${files.length} 個檔案`);
+        Alert.alert('成功', `已自動選擇 ${files.length} 個 HEIC 檔案`);
+      } else {
+        // 如果有很多 HEIC 圖片，顯示選擇界面
+        setHeicAssets(heicAssets);
+        setShowHEICModal(true);
       }
     } catch (error) {
       console.error('選擇照片時發生錯誤:', error);
       Alert.alert('錯誤', '選擇照片時發生錯誤，請重試');
     }
+  };
+
+  const handleHEICModalClose = () => {
+    setShowHEICModal(false);
+    setHeicAssets([]);
+  };
+
+  const handleHEICSelectionComplete = (selectedFiles: any[]) => {
+    onFilesSelected(selectedFiles);
+    Alert.alert('成功', `已選擇 ${selectedFiles.length} 個 HEIC 檔案`);
+    setShowHEICModal(false);
+    setHeicAssets([]);
   };
 
   const handleSelectFiles = async () => {
@@ -314,6 +356,13 @@ export function FileSelector({
           </View>
         </Card>
       )}
+
+      <HEICPickerModal
+        visible={showHEICModal}
+        onClose={handleHEICModalClose}
+        onSelectionComplete={handleHEICSelectionComplete}
+        initialAssets={heicAssets}
+      />
     </View>
   );
 }

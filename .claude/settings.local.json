@@ -18,7 +18,10 @@
       "Bash(touch:*)",
       "Bash(uv sync:*)",
       "Bash(curl:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(watchman:*)",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "additionalDirectories": [
