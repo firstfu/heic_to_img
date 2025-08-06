@@ -93,7 +93,6 @@ export function FileSelector({
   const [scaleAnimPhoto] = useState(new Animated.Value(1));
   const [scaleAnimFile] = useState(new Animated.Value(1));
   const [showHEICModal, setShowHEICModal] = useState(false);
-  const [heicAssets, setHeicAssets] = useState<any[]>([]);
 
   const animatePress = (scaleAnim: Animated.Value, action: () => void) => {
     Animated.sequence([
@@ -128,136 +127,22 @@ export function FileSelector({
         return;
       }
 
-      console.log('📸 開始查詢照片...');
-      Alert.alert('搜尋中', '正在搜尋相簿中的 HEIC 圖片，請稍候...', [
-        { text: '確定', style: 'default' }
-      ]);
-      
-      // 分頁載入照片，避免一次載入太多造成卡頓
-      const heicAssets = [];
-      let after = undefined;
-      let totalProcessed = 0;
-      let maxIterations = 20; // 最多查詢 20 次，避免無限循環
-      let currentIteration = 0;
-      
-      while (currentIteration < maxIterations) {
-        try {
-          // 每次載入 50 張照片
-          const assets = await MediaLibrary.getAssetsAsync({
-            mediaType: ['photo'],
-            first: 50,
-            after: after,
-            sortBy: [MediaLibrary.SortBy.creationTime],
-          });
-
-          console.log(`📊 第 ${currentIteration + 1} 批: 載入 ${assets.assets.length} 張照片`);
-
-          if (assets.assets.length === 0) {
-            console.log('📋 已載入完所有照片');
-            break;
-          }
-
-          // 處理這批照片
-          for (const asset of assets.assets) {
-            try {
-              const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
-              totalProcessed++;
-              
-              // 檢查檔案名稱或 URI 是否包含 HEIC 格式
-              const filename = assetInfo.filename || assetInfo.uri.split('/').pop() || '';
-              const isHeic = filename.toLowerCase().includes('.heic') || 
-                            filename.toLowerCase().includes('.heif') ||
-                            assetInfo.uri.toLowerCase().includes('.heic') ||
-                            assetInfo.uri.toLowerCase().includes('.heif');
-              
-              if (isHeic) {
-                console.log('🎯 找到 HEIC 檔案:', filename);
-                heicAssets.push(assetInfo);
-              }
-            } catch (assetError) {
-              console.warn('⚠️ 處理資產時發生錯誤:', assetError);
-            }
-          }
-
-          // 如果已找到足夠的 HEIC 圖片，可以提前結束
-          if (heicAssets.length >= 50) {
-            console.log('🎯 已找到足夠的 HEIC 圖片，提前結束搜尋');
-            break;
-          }
-
-          // 準備下一批查詢
-          if (assets.hasNextPage && assets.endCursor) {
-            after = assets.endCursor;
-            currentIteration++;
-          } else {
-            console.log('📋 已到達照片庫末尾');
-            break;
-          }
-
-          // 避免太快的連續請求
-          await new Promise(resolve => setTimeout(resolve, 50));
-
-        } catch (batchError) {
-          console.warn('⚠️ 載入批次照片時發生錯誤:', batchError);
-          break;
-        }
-      }
-
-      console.log(`✅ 搜尋完成: 總共處理 ${totalProcessed} 張照片，找到 ${heicAssets.length} 張 HEIC`);
-
-      if (heicAssets.length === 0) {
-        // 如果沒有 HEIC 圖片，回退到使用 ImagePicker
-        console.log('🔄 沒有找到 HEIC，回退到 ImagePicker');
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: 'images',
-          allowsMultipleSelection: true,
-          quality: 1,
-        });
-
-        if (!result.canceled && result.assets) {
-          // 過濾選擇的圖片，只保留 HEIC 格式
-          const heicFiles = result.assets.filter(asset => {
-            const filename = asset.uri.split('/').pop() || '';
-            return filename.toLowerCase().includes('.heic') || filename.toLowerCase().includes('.heif');
-          }).map(asset => ({
-            name: asset.uri.split('/').pop() || 'image.heic',
-            uri: asset.uri,
-            size: 0,
-            mimeType: 'image/heic',
-          }));
-
-          if (heicFiles.length === 0) {
-            Alert.alert('提示', '您的相簿中沒有 HEIC 格式的照片，或您沒有選擇 HEIC 格式的照片');
-            return;
-          }
-
-          onFilesSelected(heicFiles);
-          Alert.alert('成功', `已選擇 ${heicFiles.length} 個 HEIC 檔案`);
-        }
-        return;
-      }
-
-      // 始終顯示選擇界面，讓用戶手動選擇 HEIC 圖片
+      // 直接顯示 HEIC 選擇界面，讓 Modal 自己載入
       console.log('📋 顯示 HEIC 選擇界面');
-      setHeicAssets(heicAssets);
       setShowHEICModal(true);
+
     } catch (error) {
       console.error('❌ 選擇照片時發生錯誤:', error);
       Alert.alert('錯誤', `選擇照片時發生錯誤: ${(error as Error).message || '未知錯誤'}`);
     }
   };
 
-  const handleHEICModalClose = () => {
-    setShowHEICModal(false);
-    setHeicAssets([]);
-  };
-
   const handleHEICSelectionComplete = (selectedFiles: any[]) => {
     onFilesSelected(selectedFiles);
     Alert.alert('成功', `已選擇 ${selectedFiles.length} 個 HEIC 檔案`);
     setShowHEICModal(false);
-    setHeicAssets([]);
   };
+
 
   const handleSelectFiles = async () => {
     try {
@@ -433,9 +318,8 @@ export function FileSelector({
 
       <HEICPickerModal
         visible={showHEICModal}
-        onClose={handleHEICModalClose}
+        onClose={() => setShowHEICModal(false)}
         onSelectionComplete={handleHEICSelectionComplete}
-        initialAssets={heicAssets}
       />
     </View>
   );
