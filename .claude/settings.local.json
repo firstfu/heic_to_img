@@ -22,7 +22,8 @@
       "Bash(watchman:*)",
       "WebFetch(domain:docs.expo.dev)",
       "Bash(npx tsc:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "additionalDirectories": [

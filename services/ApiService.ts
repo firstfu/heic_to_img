@@ -63,10 +63,27 @@ export class ApiService {
     // 處理檔案
     if ('uri' in request.file) {
       // React Native 檔案格式
+      const fileObj = request.file;
+      
+      // 驗證必要屬性
+      if (!fileObj.uri) {
+        throw new Error('檔案缺少 URI 屬性');
+      }
+      if (!fileObj.name) {
+        throw new Error('檔案缺少名稱屬性');
+      }
+      
+      // 除錯日誌
+      console.log('準備上傳檔案:', {
+        uri: fileObj.uri,
+        name: fileObj.name,
+        type: fileObj.type || 'image/heic'
+      });
+      
       formData.append('file', {
-        uri: request.file.uri,
-        name: request.file.name,
-        type: request.file.type || 'image/heic',
+        uri: fileObj.uri,
+        name: fileObj.name,
+        type: fileObj.type || 'image/heic',
       } as any);
     } else {
       // Web File API 格式 (雖然我們已移除 Web 支援，但保留介面相容性)
@@ -78,6 +95,8 @@ export class ApiService {
     if (request.quality !== undefined) {
       formData.append('quality', request.quality.toString());
     }
+    
+    console.log('FormData 準備完成，format:', request.format, 'quality:', request.quality);
     
     return formData;
   }
@@ -186,6 +205,17 @@ export class ApiService {
     request: ConvertFileRequest,
     options: ApiRequestOptions = {}
   ): Promise<ConversionResponse> {
+    console.log('開始轉換檔案，請求資料:', {
+      fileName: request.file.name,
+      format: request.format,
+      quality: request.quality,
+      fileType: 'uri' in request.file ? 'React Native' : 'Web File',
+      fileDetails: 'uri' in request.file ? {
+        uri: (request.file as any).uri,
+        type: (request.file as any).type
+      } : 'Web File Object'
+    });
+    
     // 驗證檔案格式
     if (!isSupportedFormat(request.file.name)) {
       throw new Error(ERROR_MESSAGES.INVALID_FORMAT);
@@ -193,8 +223,11 @@ export class ApiService {
 
     // 建立請求
     const url = getApiUrl(API_ENDPOINTS.CONVERT);
+    console.log('API 端點:', url);
+    
     const formData = this.createFormData(request);
     
+    console.log('開始發送請求到後端...');
     const response = await this.makeRequestWithRetry<ConversionResponse | ApiErrorResponse>(url, {
       method: 'POST',
       body: formData,
@@ -202,8 +235,16 @@ export class ApiService {
     });
     
     if (!isSuccessResponse(response)) {
+      console.error('API 返回錯誤:', response);
       throw new Error((response as ApiErrorResponse).message || ERROR_MESSAGES.SERVER_ERROR);
     }
+    
+    console.log('檔案轉換成功:', {
+      filename: response.filename,
+      originalSize: response.original_size,
+      convertedSize: response.converted_size,
+      hasDataUrl: !!response.data_url
+    });
     
     return response;
   }

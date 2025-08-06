@@ -207,31 +207,86 @@ export function HEICPickerModal({ visible, onClose, onSelectionComplete, initial
       return;
     }
 
-    // 獲取每個檔案的實際大小
-    const selectedFiles = await Promise.all(
-      selectedHEICAssets.map(async (asset) => {
-        let fileSize = 0;
-        try {
-          const fileInfo = await FileSystem.getInfoAsync(asset.uri);
-          if (fileInfo.exists && 'size' in fileInfo) {
-            fileSize = fileInfo.size;
+    try {
+      // 顯示載入提示
+      Alert.alert("處理中", "正在準備檔案...");
+      
+      // 獲取每個檔案的實際大小並複製到臨時目錄
+      const selectedFiles = await Promise.all(
+        selectedHEICAssets.map(async (asset) => {
+          let fileUri = asset.uri;
+          let fileSize = 0;
+          
+          // 如果是 Photos Library URI (ph://)，需要複製到臨時目錄
+          if (asset.uri.startsWith('ph://')) {
+            try {
+              console.log(`正在處理相簿檔案: ${asset.filename}`);
+              
+              // 獲取相簿資產的本地 URI
+              const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
+              console.log(`獲取資產資訊:`, { 
+                localUri: assetInfo.localUri,
+                uri: assetInfo.uri,
+                filename: assetInfo.filename 
+              });
+              
+              // 使用 localUri 或 uri
+              const sourceUri = assetInfo.localUri || assetInfo.uri;
+              
+              // 創建臨時檔案路徑
+              const tempDir = FileSystem.cacheDirectory;
+              const tempFileName = `temp_${Date.now()}_${asset.filename}`;
+              const tempUri = `${tempDir}${tempFileName}`;
+              
+              console.log(`複製檔案從 ${sourceUri} 到 ${tempUri}`);
+              
+              // 複製檔案到臨時目錄
+              await FileSystem.copyAsync({
+                from: sourceUri,
+                to: tempUri
+              });
+              
+              // 獲取檔案大小
+              const fileInfo = await FileSystem.getInfoAsync(tempUri);
+              if (fileInfo.exists && 'size' in fileInfo) {
+                fileSize = fileInfo.size;
+              }
+              
+              fileUri = tempUri;
+              console.log(`檔案準備完成: ${tempFileName}, 大小: ${fileSize}`);
+            } catch (error) {
+              console.error(`處理相簿檔案失敗: ${asset.filename}`, error);
+              // 如果複製失敗，繼續使用原始 URI
+              fileUri = asset.uri;
+            }
+          } else {
+            // 如果不是 ph:// URI，直接獲取檔案資訊
+            try {
+              const fileInfo = await FileSystem.getInfoAsync(asset.uri);
+              if (fileInfo.exists && 'size' in fileInfo) {
+                fileSize = fileInfo.size;
+              }
+            } catch (error) {
+              console.warn(`無法獲取檔案大小: ${asset.filename}`, error);
+            }
           }
-        } catch (error) {
-          console.warn(`無法獲取檔案大小: ${asset.filename}`, error);
-        }
-        
-        return {
-          name: asset.filename,
-          uri: asset.uri,
-          size: fileSize,
-          mimeType: "image/heic",
-        };
-      })
-    );
+          
+          return {
+            name: asset.filename,
+            uri: fileUri,
+            size: fileSize,
+            type: "image/heic",  // 改為 type 而不是 mimeType
+          };
+        })
+      );
 
-    onSelectionComplete(selectedFiles);
-    setSelectedAssets(new Set());
-    onClose();
+      onSelectionComplete(selectedFiles);
+      setSelectedAssets(new Set());
+      onClose();
+    } catch (error) {
+      console.error("處理選擇的檔案時發生錯誤:", error);
+      Alert.alert("錯誤", "處理檔案時發生錯誤，請重試");
+    }
   };
 
   const handleCancel = () => {

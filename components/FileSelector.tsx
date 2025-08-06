@@ -148,12 +148,19 @@ export function FileSelector({ selectedFiles, onFilesSelected, onClearFiles, dis
         }
 
         // DocumentPicker 應該包含 size 屬性，但如果沒有，預設為 0
+        // 同時確保有正確的 type 屬性
         const filesWithSize = heicFiles.map(file => ({
           ...file,
-          size: file.size || 0
+          size: file.size || 0,
+          type: file.mimeType || (file as any).type || "image/heic"  // 確保有 type 屬性
         }));
 
-        console.log("選擇的檔案:", filesWithSize.map(f => ({ name: f.name, size: f.size })));
+        console.log("選擇的檔案:", filesWithSize.map(f => ({ 
+          name: f.name, 
+          size: f.size,
+          type: f.type,
+          uri: f.uri 
+        })));
 
         onFilesSelected(filesWithSize);
         Alert.alert("成功", `已選擇 ${filesWithSize.length} 個 HEIC 檔案`);
